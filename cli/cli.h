@@ -15,6 +15,24 @@
 
 #include <stdbool.h>
 
+
+// These are the values used when the user doesn't specify certain options
+#define DEFAULT_PORTS_FROM 1        // Start scanning at port 1
+#define DEFAULT_PORTS_TO 1024       // Scan up to port 1024 (common ports)
+#define DEFAULT_TTL_START 1         // Start traceroute with TTL=1 
+#define DEFAULT_TTL_MAX 30          // Max 30 hops for traceroute 
+#define DEFAULT_INTERVAL_MS 1000    // Sample every 1000ms = 1 second 
+
+//These define the valid ranges for various parameters
+// Ports: TCP/UDP ports range from 1 to 65535 (2^16 - 1)
+// TTL: IP Time-To-Live field is 8 bits, so 1-255
+#define MIN_PORT 1
+#define MAX_PORT 65535
+#define MIN_TTL 1
+#define MAX_TTL 255
+
+
+
 /*
  * Struct: CommandLine
  * 
