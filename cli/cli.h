@@ -38,8 +38,7 @@
  * 
  * This structure holds all the parsed command-line arguments in one place
  *
- * HELP and OUTPUT FORMAT:
- *   show_help - true if user typed --help (we show help and exit)
+ * OUTPUT FORMAT:
  *   json      - true if user wants JSON output format
  *   csv       - true if user wants CSV output format
  *
@@ -69,9 +68,6 @@
  */
 
 typedef struct {
-  // Holds if user requested help
-  bool show_help;
-
   // Specific output formats 
   bool json, csv;
 
