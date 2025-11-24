@@ -12,6 +12,8 @@
  * 
  * Aryan Verma, 400575438, McMaster University 
  */
+#ifndef CLI_H
+#define CLI_H
 
 #include <stdbool.h>
 
@@ -99,3 +101,4 @@ typedef struct {
 int cli_parse(int argc, char *argv[], CommandLine *out);
 void cli_print_help();
 
+#endif 
