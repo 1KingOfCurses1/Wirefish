@@ -12,6 +12,7 @@
 static LogLevel currentLevel = LOG_INFO;
 
 
+
 /*
  * This is what sets what level of log messages we want to show
  * chosenLevel = the level to use
@@ -39,10 +40,10 @@ static void write_log_message(LogLevel messageLevel, char *tag, char *message, v
     //print tag first
     fprintf(stderr,"[%s] ", tag);
 
-    //print the message like printf
-    vfprintf(stderr, message, args);
+    // vfprintf is like printfbut works with "..."
+    vfprintf(stderr, message, args); 
     
-    //newline so logs dont stick together
+    //just make it look nice
     fprintf(stderr,"\n");
 }
 
@@ -51,8 +52,10 @@ static void write_log_message(LogLevel messageLevel, char *tag, char *message, v
 /*
  * prints a debug log message
  */
-void log_debug(char *message, ...){
-    va_list args;
+void log_debug(const char *message, ...){
+    // "..." means the function can take any number of extra arguments, its called variadic arguments
+    // va_list, va_start and va_end are tools used to read those extra arguments
+    va_list args; 
     va_start(args, message);
     write_log_message(LOG_DEBUG, "debug : ", message, args);
     va_end(args);
@@ -63,7 +66,7 @@ void log_debug(char *message, ...){
 /*
  * prints an info log message
  */
-void log_info(char *message, ...){
+void log_info(const char *message, ...){
     va_list args;
     va_start(args, message);
     write_log_message(LOG_INFO, "Info : ", message, args);
@@ -75,7 +78,7 @@ void log_info(char *message, ...){
 /*
  * prints a warning message
  */
-void log_warn(char *message, ...){
+void log_warn(const char *message, ...){
     va_list args;
     va_start(args, message);
     write_log_message(LOG_WARN, "warn : ", message, args);
@@ -87,7 +90,7 @@ void log_warn(char *message, ...){
 /*
  * prints an error message
  */
-void log_error(char *message, ...){
+void log_error(const char *message, ...){
     va_list args;
     va_start(args, message);
     write_log_message(LOG_ERROR, "error : ", message, args);

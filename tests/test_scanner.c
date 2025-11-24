@@ -32,3 +32,6 @@
  *  - Optional ephemeral TCP server bound to 127.0.0.1:0 to guarantee an OPEN port.
  *  - Environment variable override for target/port range (e.g., NETGUARD_TEST_TARGET).
  */
+
+ //ports that are filtered and closed 
+ //
