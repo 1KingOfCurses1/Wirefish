@@ -24,6 +24,10 @@
  *
  * Thread-safety: Stateless; each call owns its TraceRoute buffer.
  * Dependencies: icmp.h, net.h, timeutil.h, config.h
+ * 
+ * Author: Shan Truong - 400576105 - truons8
+ * Date: December 3, 2025
+ * Coures: 2XC3
  */
 
 #ifndef TRACER_H

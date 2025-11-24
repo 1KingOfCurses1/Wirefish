@@ -9,6 +9,10 @@
  * Responsibilities:
  * - Render ScanTable, TraceRoute, MonitorSeries in consistent schema
  * - Avoid business logic; pure presentation
+ * 
+ * Author: Shan Truong - 400576105 - truons8
+ * Date: December 3, 2025
+ * Coures: 2XC3
  */
 
 #include "../model/model.h"

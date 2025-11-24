@@ -9,6 +9,10 @@
  *      * tracer (traceroute)
  *      * monitor (interface monitoring)
  *  - Delegate all output formatting to fmt.c (table, CSV, JSON)
+ * 
+ * Author: Shan Truong - 400576105 - truons8
+ * Date: December 3, 2025
+ * Coures: 2XC3
  */
 
 #ifndef APP_H

@@ -13,6 +13,10 @@
  *
  * Note:
  *  - Keep in sync with feature headers or include them conditionally.
+ * 
+ * Author: Shan Truong - 400576105 - truons8
+ * Date: December 3, 2025
+ * Coures: 2XC3
  */
 
 #ifndef MODEL_H

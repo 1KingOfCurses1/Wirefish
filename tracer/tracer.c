@@ -12,6 +12,10 @@
  *
  * Error Handling:
  *  - Clean teardown on signal/interrupts; timeouts per hop
+ * 
+ * Author: Shan Truong - 400576105 - truons8
+ * Date: December 3, 2025
+ * Coures: 2XC3
  */
 
  // tracer.c

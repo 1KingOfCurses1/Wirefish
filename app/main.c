@@ -6,6 +6,10 @@
  *  - Call cli_parse to turn argc/argv into a CommandLine struct
  *  - Call app_run to dispatch to scan / trace / monitor
  *  - Return appropriate exit status
+ * 
+ * Author: Shan Truong - 400576105 - truons8
+ * Date: December 3, 2025
+ * Coures: 2XC3
  */
 
 #include "app.h"

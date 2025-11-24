@@ -14,6 +14,10 @@
  *
  * Notes:
  *  - Wire format must match platform endianness requirements
+ * 
+ * Author: Shan Truong - 400576105 - truons8
+ * Date: December 3, 2025
+ * Coures: 2XC3
  */
 #ifndef ICMP_H
 #define ICMP_H
