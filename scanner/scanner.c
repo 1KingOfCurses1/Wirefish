@@ -38,19 +38,13 @@
 #include <arpa/inet.h>
 #include <sys/time.h>
 
-// Default connection timeout for port scanning (milliseconds)
-#define DEFAULT_CONNECT_TIMEOUT_MS 1000
-
-// Initial capacity for ScanTable dynamic array
-#define INITIAL_TABLE_CAPACITY 100
-
 /*
  * Function: get_time_ms
  *
  * Purpose: Get current time in milliseconds for latency measurements
  * Returns: Current time in milliseconds since epoch
  */
-static long long get_time_ms(void) {
+static long long get_time_ms() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     

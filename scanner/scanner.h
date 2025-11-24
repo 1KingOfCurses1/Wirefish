@@ -11,7 +11,7 @@
  *  - typedef struct ScanResult { int port; PortState state; int latency_ms; }
  *  - typedef struct ScanTable { ScanResult *rows; size_t len, cap; }
  *
- * Public API:
+ * Function Prototype: 
  *  - int  scanner_run(const Config *cfg, ScanTable *out);
  *  - void scantable_free(ScanTable *t);
  *
@@ -34,9 +34,19 @@
  * Aryan Verma, 400575438, McMaster University
  */
 
+#ifndef SCANNER_H
+#define SCANNER_H
+
 #include <stddef.h>
 #include <stdbool.h>
 #include "../cli/cli.h"  
+
+// Default connection timeout for port scanning (milliseconds)
+#define DEFAULT_CONNECT_TIMEOUT_MS 100
+
+// Initial capacity for ScanTable dynamic array
+#define INITIAL_TABLE_CAPACITY 100
+
 
 /*
  * Enum: PortState
@@ -104,4 +114,7 @@ typedef struct {
 
 int scanner_run(const CommandLine *cfg, ScanTable *out);
 void scantable_free(ScanTable *t);
+
+#endif
+
 
