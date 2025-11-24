@@ -1,16 +1,19 @@
 /*
  * File: scanner.h
- * Scan a host/IP (or CIDR range, if extended) for open/closed/filtered TCP ports
- * Optionally measure connect latency per port
+ * Summary: Public API for TCP port scanning (and optional host liveness)
+ *
+ * Responsibilities:
+ *  - Scan a host/IP (or CIDR range, if extended) for open/closed/filtered TCP ports
+ *  - Optionally measure connect latency per port
  *
  * Data & Types:
  *  - typedef enum PortState { PORT_CLOSED=0, PORT_OPEN=1, PORT_FILTERED=2 }
  *  - typedef struct ScanResult { int port; PortState state; int latency_ms; }
  *  - typedef struct ScanTable { ScanResult *rows; size_t len, cap; }
  *
- * Function Prototypes:
- *  - int  scanner_run(const Config *cfg, ScanTable *out)
- *  - void scantable_free(ScanTable *t)
+ * Public API:
+ *  - int  scanner_run(const Config *cfg, ScanTable *out);
+ *  - void scantable_free(ScanTable *t);
  *
  * Inputs:
  *  - cfg->target (host/IP), cfg->ports_from..ports_to, timeout settings
@@ -19,17 +22,21 @@
  *
  * Returns:
  *  - 0 on success
- *  - -1 on error 
+ *  - -1 on error (invalid args, network unreachable, etc.)
+ *
+ * Thread-safety: stateless API; safe to call from multiple threads if 'out' is distinct.
+ * Dependencies: config.h, net.h
  *
  * Notes:
- *  - Uses non-blocking connect or timeouts for responsiveness
- *  - Extend later for parallel scanning or CIDR enumeration
+ *  - Uses non-blocking connect or timeouts for responsiveness.
+ *  - Extend later for parallel scanning or CIDR enumeration.
  *
  * Aryan Verma, 400575438, McMaster University
  */
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../cli/cli.h"  
 
 /*
  * Enum: PortState
@@ -51,8 +58,11 @@
  *   - CLOSED: Server exists but port is closed (still useful info)
  *   - FILTERED: Can't tell if port is open (firewall/timeout)
  */
-
-typedef enum { PORT_CLOSED=0, PORT_OPEN=1, PORT_FILTERED=2 } PortState;
+typedef enum { 
+    PORT_CLOSED = 0,   // Connection refused
+    PORT_OPEN = 1,     // Connection succeeded
+    PORT_FILTERED = 2  // Connection timed out
+} PortState;
 
 /*
  * Struct: ScanResult
@@ -64,12 +74,11 @@ typedef enum { PORT_CLOSED=0, PORT_OPEN=1, PORT_FILTERED=2 } PortState;
  *   state       - PortState (OPEN, CLOSED, or FILTERED)
  *   latency_ms  - Time taken to connect in milliseconds
  *                 Set to -1 if not measured or connection failed
- *
  */
 typedef struct {
-  int port;
-  PortState state;
-  int latency_ms; 
+    int port;           // Port number
+    PortState state;    // Port state (OPEN/CLOSED/FILTERED)
+    int latency_ms;     // Connection latency (-1 if failed/not measured)
 } ScanResult;
 
 /*
@@ -88,15 +97,11 @@ typedef struct {
  *   - scantable_free() must be called to free memory
  */
 typedef struct {
-  ScanResult *rows;
-  size_t len, cap;
+    ScanResult *rows;   // Dynamic array of results
+    size_t len;         // Number of results
+    size_t cap;         // Capacity (for growth)
 } ScanTable;
 
-/*
- * Forward declaration of Config struct
- */
-struct Config; 
-
-int  scanner_run(const struct Config *cfg, ScanTable *out);
+int scanner_run(const CommandLine *cfg, ScanTable *out);
 void scantable_free(ScanTable *t);
 
