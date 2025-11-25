@@ -1,3 +1,4 @@
+
 /*
  * File: log.c
  * Implements printf-style logging to stderr with level filtering.
@@ -32,7 +33,7 @@ void log_set_level(LogLevel chosenLevel){
  * message = printf-style message text
  * args = extra stuff for the format
  */
-static void write_log_message(LogLevel messageLevel, char *tag, char *message, va_list args){
+static void write_log_message(LogLevel messageLevel, const char *tag, const char *message, va_list args){
 
     //dont print if it's below the level we set
     if(messageLevel < currentLevel){
