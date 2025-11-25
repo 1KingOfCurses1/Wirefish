@@ -99,3 +99,21 @@ void log_error(const char *message, ...){
     write_log_message(LOG_ERROR, "error : ", message, args);
     va_end(args);
 }
+
+/*
+ * prints a small help message explaining how to use the log
+ */
+void log_help(void) {
+    fprintf(stderr, "Logging system usage:\n");
+    fprintf(stderr, "  log_set_level(LOG_DEBUG / LOG_INFO / LOG_WARN / LOG_ERROR);\n");
+    fprintf(stderr, "  log_debug(\"message ...\");\n");
+    fprintf(stderr, "  log_info(\"message ...\");\n");
+    fprintf(stderr, "  log_warn(\"message ...\");\n");
+    fprintf(stderr, "  log_error(\"message ...\");\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Current levels:\n");
+    fprintf(stderr, "  LOG_DEBUG = 0\n");
+    fprintf(stderr, "  LOG_INFO  = 1\n");
+    fprintf(stderr, "  LOG_WARN  = 2\n");
+    fprintf(stderr, "  LOG_ERROR = 3\n");
+}
