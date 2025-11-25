@@ -26,8 +26,6 @@
  *   from - Pointer to store the first number
  *   to   - Pointer to store the second number
  *
- * Returns:
- *   EXIT_SUCCESS if successful
  */
 static void parse_range(const char *str, int *from, int *to) {
 
