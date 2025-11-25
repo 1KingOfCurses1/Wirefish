@@ -2,11 +2,11 @@
  * File: cli.c
  * Implements command-line argument parsing and help text
  *
- * This file handles all command-line argument parsing for wirefish.
+ * This file handles all command-line argument parsing for wirefish
  *
  * Behavior:
  *  - Populates CommandLine with defaults and parsed values
- *  - Returns EXIT_SUCCESS on success and EXIT_FAILURE on failure 
+ *  - Returns EXIT_SUCCESS on success
  */
 
 #include <stdio.h>

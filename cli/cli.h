@@ -19,11 +19,11 @@
 
 
 // These are the values used when the user doesn't specify certain options
-#define DEFAULT_PORTS_FROM 1        // Start scanning at port 1
-#define DEFAULT_PORTS_TO 1024       // Scan up to port 1024 (common ports)
-#define DEFAULT_TTL_START 1         // Start traceroute with TTL=1 
-#define DEFAULT_TTL_MAX 30          // Max 30 hops for traceroute 
-#define DEFAULT_INTERVAL_MS 100    // Sample every 100ms = 1 second 
+#define DEFAULT_PORTS_FROM 1        
+#define DEFAULT_PORTS_TO 1024       
+#define DEFAULT_TTL_START 1        
+#define DEFAULT_TTL_MAX 30          
+#define DEFAULT_INTERVAL_MS 100   
 
 // These define the valid ranges for various parameters
 // Ports: TCP/UDP ports range from 1 to 65535
@@ -62,7 +62,7 @@
  *
  * MONITORING:
  *   interval_ms - How often to sample network stats, in milliseconds
- *                 (ex., 100 = sample once per second)
+ *                 (ex, 100 = sample once per second)
  *
  * MODE:
  *   mode - Which operation mode the user selected (scan, trace, or monitor)
@@ -70,33 +70,26 @@
  */
 
 typedef struct {
-  // Specific output formats 
   bool json, csv;
 
-  // Target and interface strings
   char target[256];
+
   char iface[64];
 
-  // Port range for scanning
   int ports_from, ports_to;
 
-  // Time-To-Live ranges 
-  // Start is usually 1 and max is usually 30
   int ttl_start, ttl_max;
 
-  // Sample rate or monitoring interval
   int interval_ms;
 
-  // Which mode to use, only one can be active at a time
   enum {
-    MODE_NONE=0, // No mode selected (should be error, since this state should not happen)
-    MODE_SCAN,   // Port scan mode
-    MODE_TRACE,  // Traceroute mode
-    MODE_MONITOR // Network monitoring mode 
+    MODE_NONE=0, 
+    MODE_SCAN,  
+    MODE_TRACE,  
+    MODE_MONITOR 
   } mode;
 
 } CommandLine;
-
 
 int cli_parse(int argc, char *argv[], CommandLine *out);
 void cli_print_help();
