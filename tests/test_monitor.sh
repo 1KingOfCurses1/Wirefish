@@ -104,44 +104,68 @@ run_test() {
 #           test cases                #
 #######################################
 
-# 1 — missing interval
-run_test "./wirefish --monitor" 0 ""
+# 1 - missing interval 
+run_test "./wirefish --monitor" 0 "Monitoring interface" ""
 
-# 2 — invalid interval string
+# 2 - invalid interval string
 run_test "./wirefish --monitor --interval abc" 1 "" "Error: Invalid interval value"
 
-# 3 — zero interval
+# 3 - zero interval
 run_test "./wirefish --monitor --interval 0" 1 "" "Error: Interval must be positive"
 
-# 4 — negative interval
+# 4 - negative interval
 run_test "./wirefish --monitor --interval -50" 1 "" "Error: Interval must be positive"
 
-# 5 — nonexistent interface
+# 5 - nonexistent interface
 run_test "./wirefish --monitor --iface definitelyNotReal --interval 200" 0 ""
 
-# 6 — auto-detect interface 
+# 6 - auto-detect interface (success no errors)
 run_test "./wirefish --monitor --interval 200" 0 ""
 
-# 7 — interface lo exists
+# 7 - interface lo exists
 run_test "./wirefish --monitor --iface lo --interval 200" 0 ""
 
-# 8 — json + csv both true  
+# 8 - json + csv both true error
 run_test "./wirefish --monitor --interval 200 --json --csv" 1 "" "Error: Cannot use both"
 
-# 9 — unknown argument
+# 9 - unknown argument
 run_test "./wirefish --monitor --interval 200 --what" 1 "" "Error: Unknown argument"
 
-# 10 — monitor + scan together --- not allowed (cli.c)
+# 10 - monitor + scan together not allowed (cli.c)
 run_test "./wirefish --monitor --scan --interval 200" 1 "" "Error: Only one mode"
 
-# 11 — running with no mode at all
+# 11 - running with no mode at all
 run_test "./wirefish" 1 "" "Error: Must specify one mode"
 
-# 12 — using --ttl in monitor is allowed
+# 12 - using --ttl in monitor is allowed
 run_test "./wirefish --monitor --ttl 1-5 --interval 200" 0 ""
 
-# 13 — weird iface name 
+# 13 - weird iface name (cli accepts it monitor_run returns 0)
 run_test "./wirefish --monitor --iface ###weird### --interval 200" 0 ""
 
-# 14 — user gives --csv alone
+# 14 - user gives --csv alone 
 run_test "./wirefish --monitor --interval 200 --csv" 0 ""
+
+# 15 - long iface name  allowed runs, prints table header
+run_test "./wirefish --monitor --iface aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --interval 200" 0 "IFACE" ""
+
+# 16 - huge interval still valid prints table header only
+run_test "./wirefish --monitor --interval 999999" 0 "IFACE" ""
+
+# 17  missing interval value
+run_test "./wirefish --monitor --interval" 1 "" "Error: --interval requires a number (milliseconds)"
+
+# 18 - missing iface value
+run_test "./wirefish --monitor --iface" 1 "" "Error: --iface requires an interface name (e.g., eth0)"
+
+# 18 - invalid ttl format
+run_test "./wirefish --monitor --ttl hello --interval 200" 1 "" "Range must be in format"
+
+# 19 - json output is allowed (output starts with '{')
+run_test "./wirefish --monitor --interval 200 --json" 0 "{" ""
+
+# 20 - iface given + no interval default interval, prints header only 
+run_test "./wirefish --monitor --iface lo" 0 "IFACE" ""
+
+# 21 - fake iface monitor_run returns error internally but prints nothing  empty table header
+run_test "./wirefish --monitor --iface fakelo --interval 200" 0 "IFACE" ""
