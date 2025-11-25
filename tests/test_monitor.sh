@@ -32,7 +32,11 @@
 #  * Fixtures / Setup:
 #  *  - Read-only access to /proc/net/dev; skip test if file unavailable.
 #  *  - Interface name overridable via env (NETGUARD_TEST_IFACE).
+#
+# Author: Youssef Khafagy
 #  */
+
+
 
  #!/bin/bash
 #
