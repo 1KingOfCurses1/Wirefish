@@ -135,7 +135,6 @@ void scantable_free(ScanTable *t) {
  * Returns: 0 on success, -1 on error
  */
 int scanner_run(const CommandLine *cfg, ScanTable *out) {
-    // STEP 1: VALIDATE INPUT
     
     // Check for NULL pointers
     if (!cfg || !out) {
@@ -164,7 +163,7 @@ int scanner_run(const CommandLine *cfg, ScanTable *out) {
         return -1;
     }
     
-    // Convert hostname to IP address (do this once before scanning)
+    // Convert hostname to IP address
     
     struct sockaddr_storage target_addr;
     socklen_t target_addrlen;

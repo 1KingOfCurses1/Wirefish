@@ -7,13 +7,13 @@
  *  - Optionally measure connect latency per port
  *
  * Data & Types:
- *  - typedef enum PortState { PORT_CLOSED=0, PORT_OPEN=1, PORT_FILTERED=2 }
- *  - typedef struct ScanResult { int port; PortState state; int latency_ms; }
- *  - typedef struct ScanTable { ScanResult *rows; size_t len, cap; }
+ *  - typedef enum PortState 
+ *  - typedef struct ScanResult 
+ *  - typedef struct ScanTable
  *
  * Function Prototype: 
- *  - int  scanner_run(const Config *cfg, ScanTable *out);
- *  - void scantable_free(ScanTable *t);
+ *  - int  scanner_run(const Config *cfg, ScanTable *out)
+ *  - void scantable_free(ScanTable *t)
  *
  * Inputs:
  *  - cfg->target (host/IP), cfg->ports_from..ports_to, timeout settings
@@ -22,14 +22,7 @@
  *
  * Returns:
  *  - 0 on success
- *  - -1 on error (invalid args, network unreachable, etc.)
- *
- * Thread-safety: stateless API; safe to call from multiple threads if 'out' is distinct.
- * Dependencies: config.h, net.h
- *
- * Notes:
- *  - Uses non-blocking connect or timeouts for responsiveness.
- *  - Extend later for parallel scanning or CIDR enumeration.
+ *  - -1 on error 
  *
  * Aryan Verma, 400575438, McMaster University
  */
@@ -69,9 +62,9 @@
  *   - FILTERED: Can't tell if port is open (firewall/timeout)
  */
 typedef enum { 
-    PORT_CLOSED = 0,   // Connection refused
-    PORT_OPEN = 1,     // Connection succeeded
-    PORT_FILTERED = 2  // Connection timed out
+    PORT_CLOSED = 0,
+    PORT_OPEN = 1,     
+    PORT_FILTERED = 2  
 } PortState;
 
 /*
@@ -86,9 +79,9 @@ typedef enum {
  *                 Set to -1 if not measured or connection failed
  */
 typedef struct {
-    int port;           // Port number
-    PortState state;    // Port state (OPEN/CLOSED/FILTERED)
-    int latency_ms;     // Connection latency (-1 if failed/not measured)
+    int port;        
+    PortState state;    
+    int latency_ms;     
 } ScanResult;
 
 /*
@@ -107,9 +100,9 @@ typedef struct {
  *   - scantable_free() must be called to free memory
  */
 typedef struct {
-    ScanResult *rows;   // Dynamic array of results
-    size_t len;         // Number of results
-    size_t cap;         // Capacity (for growth)
+    ScanResult *rows;   
+    size_t len;         
+    size_t cap;         
 } ScanTable;
 
 int scanner_run(const CommandLine *cfg, ScanTable *out);
