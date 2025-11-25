@@ -100,33 +100,25 @@ int net_resolve(const char *host, struct sockaddr_storage *out, socklen_t *outle
     
     
     // ai_family is the address family (could be IPv4 or IPv6)
-    // AF_INET = IPv4 (addresses like 192.168.1.1)
     hints.ai_family = AF_INET; // Setting to IPv4
     
     
     // ai_socktype is the type of socket
-    // SOCK_STREAM = TCP (connection-oriented, reliable)
-    // SOCK_DGRAM = UDP (connectionless, unreliable but fast)
-    hints.ai_socktype = SOCK_STREAM; // Setting to TCP
+    // SOCK_STREAM = TCP
+    hints.ai_socktype = SOCK_STREAM; 
     
     
     // Getting the address info 
-    // host - the hostname or IP string to resolve
-    // NULL - the service (port) - we do not need it yet
-    // &hints - our preferences
-    // &result - where to store the results
     struct addrinfo *result;
     int status = getaddrinfo(host, NULL, &hints, &result);
     
     // Checking for errors
     if (status != 0) {
-        // gai_strerror() simply just converts the error code to a human readable string
         fprintf(stderr, "Error: DNS resolution failed for '%s': %s\n", host, gai_strerror(status));
         return -1;
     }
 
     // getaddrinfo() returns a linked list of addresses
-    // For simplicity, we just use the first one
     
     // Copy the address from result->ai_addr to our output buffer
     // We use sockaddr_storage because it's large enough for any address type
@@ -156,9 +148,7 @@ int net_resolve(const char *host, struct sockaddr_storage *out, socklen_t *outle
 int net_tcp_connect(const struct sockaddr *sa, socklen_t slen, int timeout_ms) {
 
     // socket() creates an endpoint for communication
-    // AF_INET is the IPv4 address family
-    // SOCK_STREAM is TCP (connection-oriented, reliable stream)
-    // Parameter with value 0 lets the system choose the protocol (TCP for SOCK_STREAM)
+    // Specifying to use IPv4 and TCP protocol 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         perror("socket");
@@ -167,11 +157,6 @@ int net_tcp_connect(const struct sockaddr *sa, socklen_t slen, int timeout_ms) {
     
     // By default, sockets block on operations like connect()
     // We want non-blocking so we can implement our own timeout
-    // fcntl() = "file control" - manipulate file descriptor properties
-    // Process:
-    // 1. Get current flags with F_GETFL
-    // 2. Add O_NONBLOCK flag
-    // 3. Set new flags with F_SETFL
     
     // Get current socket flags
     int flags = fcntl(sockfd, F_GETFL, 0);
@@ -189,10 +174,7 @@ int net_tcp_connect(const struct sockaddr *sa, socklen_t slen, int timeout_ms) {
     }
     
     // connect() initiates the TCP 3-way handshake
-    // In non-blocking mode:
-    // connect() returns immediately
-    // Returns -1 with errno = EINPROGRESS (connection in progress)
-    // We must wait for connection to complete
+    // In non-blocking mode connect() will return immediately
     int result = connect(sockfd, sa, slen);
     
     // Check immediate connection success (rare but possible for localhost)
@@ -201,7 +183,7 @@ int net_tcp_connect(const struct sockaddr *sa, socklen_t slen, int timeout_ms) {
     }
     
     // For non-blocking sockets, errno should be EINPROGRESS
-    // This means "connection is in progress, check back later"
+    // This means connection is in progress
     if (errno != EINPROGRESS) {
         // Real error 
         close(sockfd);
@@ -210,9 +192,7 @@ int net_tcp_connect(const struct sockaddr *sa, socklen_t slen, int timeout_ms) {
     
 
     // Use select() to wait for the socket to become writable
-    // socket becomes writable when the connection succeeds (we can write data), or Connection fails (error pending)
-    // select() lets us specify a timeout so we do not wait forever
-    
+    // socket becomes writable when the connection succeeds (we can write data), or connection fails (error pending)
     
      // fd_set: a set of file descriptors to monitor
      // Use FD_ZERO and FD_SET to manipulate this set
@@ -222,24 +202,11 @@ int net_tcp_connect(const struct sockaddr *sa, socklen_t slen, int timeout_ms) {
     
 
     // struct timeval: represents timeout
-    // tv_sec: seconds
-    // tv_usec: microseconds (millionths of a second)
     struct timeval tv;
     tv.tv_sec = timeout_ms / 1000;              // Convert ms to seconds
     tv.tv_usec = (timeout_ms % 1000) * 1000;    // Remainder as microseconds
     
-    // select() waits for socket to become ready
-    // Parameters:
-    // sockfd + 1: highest file descriptor number + 1 (required for select)
-    //   NULL: read fds (we don't care about reads)
-    //   &writefds: write fds (we care when socket becomes writable)
-    //   NULL: exception fds (we don't use this)
-    //   &tv: timeout
-    //
-    // Returns:
-    //   > 0: number of ready file descriptors
-    //   0: timeout (no sockets became ready)
-    //   -1: error
+    // Use select() to wait for the non-blocking connect() to finish
     result = select(sockfd + 1, NULL, &writefds, NULL, &tv);
     
     if (result <= 0) {
@@ -265,10 +232,6 @@ int net_tcp_connect(const struct sockaddr *sa, socklen_t slen, int timeout_ms) {
     
 
     // If error != 0, connection failed
-    // Common errors:
-    //   ECONNREFUSED: port is closed (server actively refused)
-    //   ETIMEDOUT: connection timed out
-    //   EHOSTUNREACH: no route to host
     if (error != 0) {
         // Connection failed
         close(sockfd);
@@ -298,10 +261,6 @@ int net_set_ttl(int sockfd, int ttl) {
     // setsockopt() is used to set options on a socket
 
     // sockfd is the socket to modify
-    // IPPROTO_IP is IP protocol level
-    // IP_TTL is the TTL option
-    // &ttl is the pointer to the new TTL value
-    // sizeof(ttl) is the size of the value
     if (setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
         perror("setsockopt IP_TTL");
         return -1;
@@ -330,9 +289,6 @@ int net_set_ttl(int sockfd, int ttl) {
 int net_icmp_raw_socket() {
     
     // socket() with raw ICMP protocol
-    // AF_INET specifies IPv4
-    // SOCK_RAW specifies that it is a raw socket
-    // IPPROTO_ICMP refers to the ICMP protocol
     int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if (sockfd < 0) {
          // Special error message for permission denied
