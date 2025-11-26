@@ -30,14 +30,17 @@ jobs:
     - name: Build wirefish-test (with coverage)
       run: make wirefish-test
 
+    - name: Make test script executable
+      run: chmod +x ./tests/test_scanner.sh
+
     - name: Run test script
-      run: ./tests/test_scanner.sh > test_results.txt
+      run: ./tests/test_scanner.sh > test_results. txt
       continue-on-error: true
 
     - name: Run gcov coverage reports
       if: ${{ always() }}
       run: |
-        for file in app/*. c cli/*.c scanner/*.c tracer/*. c monitor/*.c fmt/*.c net/*.c timeutil/*.c
+        for file in app/*. c cli/*.c scanner/*.c tracer/*.c monitor/*.c fmt/*. c net/*.c timeutil/*.c
         do
           gcov "$file" || true
         done
