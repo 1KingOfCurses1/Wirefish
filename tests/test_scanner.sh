@@ -1,5 +1,5 @@
 # /*
-#  * File: tests/test_scanner.c
+#  * File: tests/test_scanner.sh
 #  * Summary: Unit tests for the TCP port-scanning module.
 #  *
 #  * Purpose:
@@ -54,41 +54,51 @@
 declare -i tc=0
 declare -i fails=0
 
+#The run_test function is slighlty edited from the original version, 
+#Comments added to explain the changes
 run_test() {
     tc=$tc+1
 
-    local CMD="$1"
-    local WANT_RET="$2"
-    local WANT_OUT="$3"
-    local WANT_ERR="$4"
+    local COMMAND="$1"
+    local RETURN="$2"
+    local STDOUT="$3"
+    local STDERR="$4"
 
-    $CMD >tmp_out 2>tmp_err
-    local GOT_RET=$?
+    #the original run_test runs COMMAND 3 times but our codes output changes every run
+    #so here I run it once and save stdout/stderr, so it stays consistent 
+    $COMMAND >tmp_out 2>tmp_err
+    local A_RETURN=$?
 
-    if [[ "$GOT_RET" != "$WANT_RET" ]]; then
-        echo "Test $tc FAILED (return code)"
+    if [[ "$A_RETURN" != "$RETURN" ]]; then
+        echo "Test $tc FAILED"
+        echo "   Expected Return: $RETURN"
+        echo "   Actual Return: $A_RETURN"
         fails=$fails+1
         return
     fi
 
-    local OUT="$(cat tmp_out)"
-    local ERR="$(cat tmp_err)"
+    #same thing, instead of rerunning it, just get STDOUT and STDERR from the single run
+    local A_STDOUT="$(cat tmp_out)"
+    local A_STDERR="$(cat tmp_err)"
 
-    if [[ -n "$WANT_OUT" ]]; then
-        if [[ "$OUT" != *"$WANT_OUT"* ]]; then
+    #The orignal checks for a full exact match but wirefish prints alot of dynamic stuff
+    #so I changed it to substring check instead as exact matches will fail
+    if [[ -n "$STDOUT" ]]; then #this line is to make sure its not empty
+        if [[ "$A_STDOUT" != *"$STDOUT"* ]]; then
             echo "Test $tc FAILED (stdout)"
-            echo "  expected substring: $WANT_OUT"
-            echo "  got: $OUT"
+            echo "  expected substring: $STDOUT"
+            echo "  actual: $A_STDOUT"
             fails=$fails+1
-            return
+            return 1
         fi
     fi
 
-    if [[ -n "$WANT_ERR" ]]; then
-        if [[ "$ERR" != *"$WANT_ERR"* ]]; then
+    #same substring logic for stderr
+    if [[ -n "$STDERR" ]]; then
+        if [[ "$A_STDERR" != *"$STDERR"* ]]; then
             echo "Test $tc FAILED (stderr)"
-            echo "  expected substring: $WANT_ERR"
-            echo "  got: $ERR"
+            echo "  expected substring: $STDERR"
+            echo "  actual: $A_STDERR"
             fails=$fails+1
             return
         fi
@@ -96,6 +106,7 @@ run_test() {
 
     echo "Test $tc passed"
 }
+
 
 #######################################
 #           test cases                #
