@@ -44,20 +44,20 @@ jobs:
     - name: Run gcov coverage reports
       if: ${{ always() }}
       run: |
-        gcov wirefish-test-main.c || true
-        gcov wirefish-test-cli.c || true
-        gcov wirefish-test-app.c || true
-        gcov wirefish-test-scanner. c || true
-        gcov wirefish-test-tracer.c || true
-        gcov wirefish-test-monitor.c || true
-        gcov wirefish-test-fmt.c || true
-        gcov wirefish-test-net.c || true
-        gcov wirefish-test-icmp.c || true
-        gcov wirefish-test-timeutil.c || true
-        for file in app/*. c cli/*. c scanner/*.c tracer/*.c monitor/*.c fmt/*.c net/*. c timeutil/*.c
-        do
-          gcov "wirefish-test-$file" || true
-        done
+        # First, list all object files to see what's available
+        echo "=== Available object files ==="
+        find . -name "*.gcno" -o -name "*.gcda" | head -20
+        
+        echo "=== Running gcov on specific files ==="
+        # Run gcov on the main test binary to generate coverage for all sources
+        gcov -o . wirefish-test 2>/dev/null || true
+        
+        # Alternative: Run gcov on all object files
+        echo "=== Running gcov on all gcda files ==="
+        find . -name "*.gcda" -exec gcov {} \; 2>/dev/null || true
+        
+        echo "=== Generated gcov files ==="
+        ls -la *.gcov 2>/dev/null || echo "No gcov files generated"
 
     - name: Upload Test Results
       if: ${{ always() }}
@@ -71,5 +71,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Coverage Reports
-        path: . /*.gcov
+        path: ./*.gcov
       continue-on-error: true
