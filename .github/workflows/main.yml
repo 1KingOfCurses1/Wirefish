@@ -44,9 +44,9 @@ jobs:
     - name: Run gcov coverage reports
       if: ${{ always() }}
       run: |
-        for file in app/*.c cli/*. c scanner/*.c tracer/*.c monitor/*.c fmt/*.c net/*. c timeutil/*.c
+        for file in app/*. c cli/*. c scanner/*.c tracer/*.c monitor/*.c fmt/*.c net/*. c timeutil/*.c
         do
-          gcov "$file" || true
+          gcov "wirefish-test-$file" || true
         done
 
     - name: Upload Test Results
