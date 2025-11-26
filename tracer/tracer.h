@@ -33,12 +33,13 @@
 #ifndef TRACER_H
 #define TRACER_H
 
+#include <stddef.h>
+#include <stdbool.h>
 #include "../cli/cli.h"
 #include "../model/model.h"
 
-// Uses Hop and TraceRoute from model.h
-
-int tracer_run(const CommandLine *cfg, TraceRoute *out);
+int  tracer_run(const CommandLine *cmd, TraceRoute *out);
+void traceroute_free(TraceRoute *route);
 void traceroute_free(TraceRoute *t);
 
 #endif /* TRACER_H */

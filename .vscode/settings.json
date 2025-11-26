@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "stdio.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "icmp.h": "c",
+        "ip.h": "c"
     }
 }
