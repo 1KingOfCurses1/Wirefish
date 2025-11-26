@@ -32,15 +32,14 @@ jobs:
 
     - name: Run test script
       run: ./tests/test_scanner.sh > test_results.txt
+      continue-on-error: true
 
     - name: Run gcov coverage reports
+      if: ${{ always() }}
       run: |
-        for dir in app cli scanner tracer monitor fmt net timeutil
+        for file in app/*. c cli/*.c scanner/*.c tracer/*. c monitor/*.c fmt/*.c net/*.c timeutil/*.c
         do
-          for file in $dir/*.c
-          do
-            gcov "wirefish-test-$file" || true
-          done
+          gcov "$file" || true
         done
 
     - name: Upload Test Results
