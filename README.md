@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-
-=======
 # Wirefish – Network Diagnostics & Monitoring Toolkit
 
 Wirefish is a lightweight command-line network diagnostics suite designed to provide scanning, traceroute, and interface bandwidth monitoring in a single unified tool. It is intended as an educational project demonstrating systems programming, raw sockets, ICMP construction, live interface monitoring, and modular C design.
