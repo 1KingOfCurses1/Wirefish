@@ -11,7 +11,7 @@
 #include "log.h"
 
 
-//Starting level
+//Starting log level and stores it
 static LogLevel currentLevel = LOG_INFO;
 
 
@@ -101,19 +101,19 @@ void log_error(const char *message, ...){
 }
 
 /*
- * prints a small help message explaining how to use the log
+ * prints a small help message explaining how to use the logger
  */
 void log_help(void) {
-    fprintf(stderr, "Logging system usage:\n");
-    fprintf(stderr, "  log_set_level(LOG_DEBUG / LOG_INFO / LOG_WARN / LOG_ERROR);\n");
-    fprintf(stderr, "  log_debug(\"message ...\");\n");
-    fprintf(stderr, "  log_info(\"message ...\");\n");
-    fprintf(stderr, "  log_warn(\"message ...\");\n");
-    fprintf(stderr, "  log_error(\"message ...\");\n");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Current levels:\n");
-    fprintf(stderr, "  LOG_DEBUG = 0\n");
-    fprintf(stderr, "  LOG_INFO  = 1\n");
-    fprintf(stderr, "  LOG_WARN  = 2\n");
-    fprintf(stderr, "  LOG_ERROR = 3\n");
+    printf("\n");
+    printf("Log usage :\n");
+    printf("    log_set_level(LOG_DEBUG / LOG_INFO / LOG_WARN / LOG_ERROR);\n");
+    printf("    log_debug('message  '): \n");
+    printf("    log_info('message   '):\n");
+    printf("    log_warn(('message  '): \n");
+    printf("    log_error('message  '): \n");
+    printf("levels:\n");
+    printf("    LOG_DEBUG = 0\n");
+    printf("    LOG_INFO  = 1\n");
+    printf("    LOG_WARN  = 2\n");
+    printf("    LOG_ERROR = 3\n");
 }
