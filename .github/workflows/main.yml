@@ -30,6 +30,9 @@ jobs:
     - name: Build wirefish-test (with coverage)
       run: make wirefish-test
     
+    - name: Make test script executable
+      run: chmod +x ./tests/test_scanner.sh
+    
     - name: Run test script
       run: ./tests/test_scanner.sh > test_results.txt
     
@@ -52,4 +55,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Coverage Reports
-        path: ./*.gcov
+        path: . /*. gcov
