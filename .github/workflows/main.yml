@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Build wirefish (release)
       run: make wirefish
-    
+
     - name: Upload wirefish Executable
       uses: actions/upload-artifact@v4
       with:
@@ -26,33 +26,33 @@ jobs:
     needs: build
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Build wirefish-test (with coverage)
       run: make wirefish-test
-    
-    - name: Make test script executable
-      run: chmod +x ./tests/test_scanner.sh
-    
+
     - name: Run test script
       run: ./tests/test_scanner.sh > test_results.txt
-    
+
     - name: Run gcov coverage reports
       run: |
-        for file in cli/*.c net/*.c scanner/*.c
+        for dir in app cli scanner tracer monitor fmt net timeutil
         do
-          gcov "wirefish-test-$file"
+          for file in $dir/*.c
+          do
+            gcov "wirefish-test-$file" || true
+          done
         done
-    
+
     - name: Upload Test Results
       if: ${{ always() }}
       uses: actions/upload-artifact@v4
       with:
         name: Test Results
         path: ./test_results.txt
-    
+
     - name: Upload Coverage Reports
       if: ${{ always() }}
       uses: actions/upload-artifact@v4
       with:
         name: Coverage Reports
-        path: . /*. gcov
+        path: ./*.gcov
