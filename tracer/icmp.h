@@ -22,8 +22,6 @@
 #include <stdint.h>
 
 uint16_t icmp_checksum(const void *buf, size_t len);
-int icmp_build_echo(uint16_t id, uint16_t seq,
-                    const void *payload, size_t payload_len,
-                    unsigned char *out, size_t *out_len);
+int icmp_build_echo(uint16_t id, uint16_t seq, const void *payload, size_t payload_len, unsigned char *out, size_t *out_len);
 
 #endif /* ICMP_H */
