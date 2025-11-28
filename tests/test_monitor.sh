@@ -115,8 +115,9 @@ run_test() {
 #           test cases                #
 #######################################
 
-# 1 - missing interval 
-run_test "./wirefish --monitor" 0 "Monitoring interface" ""
+# 1 - missing interval  
+run_test "./wirefish --monitor" 1 "" "Error"
+
 
 # 2 - invalid interval string
 run_test "./wirefish --monitor --interval abc" 1 "" "Error: Invalid interval value"
@@ -127,8 +128,8 @@ run_test "./wirefish --monitor --interval 0" 1 "" "Error: Interval must be posit
 # 4 - negative interval
 run_test "./wirefish --monitor --interval -50" 1 "" "Error: Interval must be positive"
 
-# 5 - nonexistent interface
-run_test "./wirefish --monitor --iface definitelyNotReal --interval 200" 0 ""
+# 5 - nonexistent interface 
+run_test "./wirefish --monitor --iface defNotReal --interval 200" 1 "" "Error"
 
 # 6 - auto-detect interface (success no errors)
 run_test "./wirefish --monitor --interval 200" 0 ""
@@ -178,5 +179,5 @@ run_test "./wirefish --monitor --interval 200 --json" 0 "{" ""
 # 20 - iface given + no interval default interval, prints header only 
 run_test "./wirefish --monitor --iface lo" 0 "IFACE" ""
 
-# 21 - fake iface monitor_run returns error internally but prints nothing  empty table header
-run_test "./wirefish --monitor --iface fakelo --interval 200" 0 "IFACE" ""
+# 21 - fake iface again 
+run_test "./wirefish --monitor --iface fakelo --interval 200" 1 "" "Error"
