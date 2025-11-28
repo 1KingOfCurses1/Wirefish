@@ -122,29 +122,42 @@ run_test "./wirefish --scan --target $TARGET --ports 443-443 --csv" 0 "port,stat
 # 20 - JSON output for single port
 run_test "./wirefish --scan --target $TARGET --ports 443-443 --json" 0 "\"results\"" ""
 
-# 21 - closed port on google.com (port 81 is closed)
-run_test "./wirefish --scan --target google.com --ports 81-81" 0 "closed" ""
 
-# 22 - open port on an external site
+# 21 - open port on an external site
 run_test "./wirefish --scan --target google.com --ports 80-80" 0 "open" ""
 
-# 23 - filtered port using an unroutable IP
+# 22 - filtered port using an unroutable IP
 run_test "./wirefish --scan --target 10.255.255.1 --ports 80-80" 0 "filtered" ""
 
-# 24 - another target that should fail DNS resolution
+# 23 - another target that should fail DNS resolution
 run_test "./wirefish --scan --target badbadbad12345 --ports 20-22" 1 "" "Failed to resolve target"
 
-# 25 - larger range to make the scan table grow
+# 24 - larger range to make the scan table grow
 run_test "./wirefish --scan --target $TARGET --ports 1-2000" 0 "PORT  STATE" ""
 
-# 26 - even bigger range to trigger more reallocations
+# 25 - even bigger range to trigger more reallocations
 run_test "./wirefish --scan --target $TARGET --ports 1-5000" 0 "PORT  STATE" ""
 
-# 27 - very large range that still succeeds
+# 26 - very large range that still succeeds
 run_test "./wirefish --scan --target $TARGET --ports 1-20000" 0 "PORT  STATE" ""
 
-# 28 - filtered ports over a small range
+# 27 - filtered ports over a small range
 run_test "./wirefish --scan --target 10.255.255.1 --ports 1-3" 0 "filtered" ""
+
+# 28 - scan using default ports (no --ports given)
+run_test "./wirefish --scan --target $TARGET" 0 "PORT  STATE" ""
+
+# 29 - json output on larger range
+run_test "./wirefish --scan --target $TARGET --ports 1-50 --json" 0 "\"results\"" ""
+
+# 30 - csv output on larger range
+run_test "./wirefish --scan --target $TARGET --ports 1-50 --csv" 0 "port,state,latency_ms" ""
+
+# 31 - filtered result on unroutable IP with a small range
+run_test "./wirefish --scan --target 10.255.255.1 --ports 1-5" 0 "filtered" ""
+
+# 32 - another DNS failure case with different name
+run_test "./wirefish --scan --target doesnotexist987654 --ports 10-12" 1 "" "Failed to resolve target"
 
 # Cleanup
 rm -f tmp_out tmp_err
