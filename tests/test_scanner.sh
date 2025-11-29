@@ -393,6 +393,17 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-30 --csv" 1 "" "requires r
 # 98 - json + big ttl range same thing
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-30 --json" 1 "" "requires root"
 
+#######################################
+# config
+#######################################
+
+# 99 - scan without target
+run_test "./wirefish --scan --ports 1-3" 1 "" "target required"
+
+# 100 - trace without target
+run_test "./wirefish --trace --ttl 1-3" 1 "" "target required"
+
+
 # Cleanup
 rm -f tmp_out tmp_err
 
