@@ -367,6 +367,20 @@ run_test "./wirefish --scan --target 127.0.0.1 --ports" 1 "" "Error: --ports req
 # 92 - forgot iface name
 run_test "./wirefish --monitor --iface" 1 "" "requires an interface name"
 
+#######################################
+# more net 
+#######################################
+
+# 93 - scan on max port on loopback 
+run_test "./wirefish --scan --target 127.0.0.1 --ports 65535-65535" 0 "65535" ""
+
+# 94 - small range to activate table code paths
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-3" 0 "PORT  STATE" ""
+
+# 95 - monitor with auto interface detection
+run_test "./wirefish --monitor --interval 200" 0 ""
+
+
 
 # Cleanup
 rm -f tmp_out tmp_err
