@@ -222,17 +222,17 @@ run_test "./wirefish" 1 "" "Error: Must specify one mode"
 # 52 - using --ttl in monitor is allowed, just ignored
 run_test "./wirefish --monitor --ttl 1-5 --interval 200" 0 ""
 
-# 53 - weird iface name → monitor_run error
+# 53 - weird iface name monitor_run error
 run_test "./wirefish --monitor --iface ###weird### --interval 200" 1 "" "Error"
 
 # 54 - user gives --csv alone 
 run_test "./wirefish --monitor --interval 200 --csv" 0 ""
 
-# 55 - long iface name likely invalid → expect error
+# 55 - long iface name likely invalid expect error
 run_test "./wirefish --monitor --iface aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --interval 200" 1 "" "Error"
 
-# 56 - huge interval still valid prints table header only
-run_test "./wirefish --monitor --interval 999999" 0 "IFACE" ""
+# 56 - big but safe interval that still returns 
+run_test "./wirefish --monitor --interval 2000" 0 "IFACE" ""
 
 # 57 - missing interval value
 run_test "./wirefish --monitor --interval" 1 "" "Error: --interval requires a number (milliseconds)"
@@ -251,6 +251,38 @@ run_test "./wirefish --monitor --iface lo" 0 "IFACE" ""
 
 # 62 - fake iface again 
 run_test "./wirefish --monitor --iface fakelo --interval 200" 1 "" "Error"
+
+
+#######################################
+# tracer tests 
+#######################################
+
+# 63 - forgot to put target with trace
+run_test "./wirefish --trace" 1 "" "Error: --target required for trace mode"
+
+# 64 - ttl backwards so it should error
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 10-1" 1 "" "Range start"
+
+# 65 - letters inside ttl so that’s invalid
+run_test "./wirefish --trace --target 8.8.8.8 --ttl abc-10" 1 "" "Invalid number"
+
+# 66 - ttl is outside allowed minimum
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 0-5" 1 "" "TTL values must be in range"
+
+# 67 - ttl max too high
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-300" 1 "" "TTL values must be in range"
+
+# 68 - tracer can't resolve this name
+run_test "./wirefish --trace --target noSuchHostXYZ123 --ttl 1-4" 1 "" "Failed to resolve"
+
+# 69 - tracer always fails at raw socket in CI
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3" 1 "" "requires root privileges"
+
+# 70 - csv still dies the same because socket fail comes first
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3 --csv" 1 "" "requires root privileges"
+
+# 71 - json also ends the same way
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3 --json" 1 "" "requires root privileges"
 
 
 
