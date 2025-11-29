@@ -352,6 +352,13 @@ run_test "./wirefish --scan --target 127.0.0.1 --ports 1-2 --json --csv" 1 "" "C
 # 87 - same thing but for monitor
 run_test "./wirefish --monitor --interval 200 --json --csv" 1 "" "Cannot use both"
 
+# 88 - giving ttl to scan doesn't matter, still should work
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1 --ttl 5-10" 0 "PORT  STATE" ""
+
+# 89 - reversed ports again
+run_test "./wirefish --scan --target 127.0.0.1 --ports 10-1" 1 "" "cannot be greater"
+
+
 # Cleanup
 rm -f tmp_out tmp_err
 
