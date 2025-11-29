@@ -339,6 +339,13 @@ run_test "./wirefish --monitor --interval 200 --json" 0 "{" ""
 # 84 - scan table format just needs the main header
 run_test "./wirefish --scan --target 127.0.0.1 --ports 3-3" 0 "PORT  STATE" ""
 
+#######################################
+# more cli stuff
+#######################################
+
+# 85 - unknown flag here
+run_test "./wirefish --wat" 1 "" "Unknown argument"
+
 # Cleanup
 rm -f tmp_out tmp_err
 
