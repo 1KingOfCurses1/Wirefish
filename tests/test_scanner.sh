@@ -346,6 +346,12 @@ run_test "./wirefish --scan --target 127.0.0.1 --ports 3-3" 0 "PORT  STATE" ""
 # 85 - unknown flag here
 run_test "./wirefish --wat" 1 "" "Unknown argument"
 
+# 86 - mixing json and csv with scan is illegal
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-2 --json --csv" 1 "" "Cannot use both"
+
+# 87 - same thing but for monitor
+run_test "./wirefish --monitor --interval 200 --json --csv" 1 "" "Cannot use both"
+
 # Cleanup
 rm -f tmp_out tmp_err
 
