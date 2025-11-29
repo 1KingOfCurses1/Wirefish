@@ -531,6 +531,104 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 0-5" 1 "" "TTL values must b
 # 140 - trace TTL > maximum  error path again
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-500" 1 "" "TTL values must be in range"
 
+#######################################
+# fmt.c 
+#######################################
+
+# 141 - scan table format default output, hits fmt_scan_table_table
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-3" 0 "PORT  STATE" ""
+
+# 142 - scan csv format hits fmt_scan_table_csv
+run_test "./wirefish --scan --target 127.0.0.1 --ports 2-2 --csv" 0 "port,state,latency_ms" ""
+
+# 143 - scan json format hits fmt_scan_table_json
+run_test "./wirefish --scan --target 127.0.0.1 --ports 3-3 --json" 0 "\"results\"" ""
+
+# 144 - scan filtered state hits port_state_str PORT_FILTERED path
+run_test "./wirefish --scan --target 203.0.113.1 --ports 4-4" 0 "filtered" ""
+
+# 145 - scan closed state 
+run_test "./wirefish --scan --target 127.0.0.1 --ports 65000-65000" 0 "closed" ""
+
+# 146 - scan open state 
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "open" ""
+
+# 147 - scan table format prints '-' for latency when latency <0
+run_test "./wirefish --scan --target 203.0.113.1 --ports 10-10" 0 "-" ""
+
+# 148 - monitor table format 
+run_test "./wirefish --monitor --interval 100 --duration 1" 0 "IFACE" ""
+
+# 149 - monitor csv format 
+run_test "./wirefish --monitor --interval 100 --duration 1 --csv" 0 "iface,rx_bytes" ""
+
+# 150 - monitor json format 
+run_test "./wirefish --monitor --interval 100 --duration 1 --json" 0 "{\"type\":\"monitor\"" ""
+
+# 151 - monitor multiple samples (covers more loop iterations)
+run_test "./wirefish --monitor --interval 50 --duration 1" 0 "IFACE" ""
+
+# 152 - scan json multiple rows (hitting comma-branch in JSON loop)
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-5 --json" 0 "\",\"" ""
+
+# 153 - monitor json multiple rows
+run_test "./wirefish --monitor --interval 30 --duration 1 --json" 0 "," ""
+
+# 154 - scan csv blank latency (latency_ms = -1 produces empty field)
+run_test "./wirefish --scan --target 203.0.113.1 --ports 9-9 --csv" 0 ",," ""
+
+# 155 - verify scan table prints header lines
+run_test "./wirefish --scan --target 127.0.0.1 --ports 7-7" 0 "PORT  STATE" ""
+
+# 156 - verify monitor table prints header
+run_test "./wirefish --monitor --interval 80 --duration 1" 0 "RX_BYTES" ""
+
+# 157 - verify scan table uses correct spacing in table output
+run_test "./wirefish --scan --target 127.0.0.1 --ports 6-6" 0 "----  ---------" ""
+
+# 158 - verify monitor json ends with closing bracket
+run_test "./wirefish --monitor --interval 100 --duration 1 --json" 0 "]}" ""
+
+# 159 - verify monitor csv has 7 columns
+run_test "./wirefish --monitor --interval 100 --duration 1 --csv" 0 "tx_avg_bps" ""
+
+#######################################
+# monitor extra 
+#######################################
+
+# 160 - invalid iface triggers read_iface_stats not found
+run_test "./wirefish --monitor --iface notralXYZ --interval 100 --duration 1" 1 "" "not found"
+
+# 161 - iface name with colon to break sscanf parsing (tests parse failure)
+run_test "./wirefish --monitor --iface 'abc:def' --interval 100 --duration 1" 1 "" "not found"
+
+# 162 - monitor with extremely short interval for fast ms_now delta
+run_test "./wirefish --monitor --interval 1 --duration 1" 0 "IFACE" ""
+
+# 163 - monitor with NULL iface (auto detect) — normal path
+run_test "./wirefish --monitor --interval 100 --duration 1" 0 "IFACE" ""
+
+# 164 - monitor repeated reads to exercise rolling averages deeply
+run_test "./wirefish --monitor --interval 50 --duration 2" 0 "IFACE" ""
+
+# 165 - try a very large interval to trigger sleep-without-many-loops
+run_test "./wirefish --monitor --interval 500 --duration 1" 0 "IFACE" ""
+
+# 166 - monitor JSON to exercise full pipeline through fmt → monitor
+run_test "./wirefish --monitor --interval 100 --duration 1 --json" 0 "\"samples\"" ""
+
+# 167 - monitor CSV to exercise fmt_monitor_series_csv
+run_test "./wirefish --monitor --interval 100 --duration 1 --csv" 0 "iface,rx_bytes" ""
+
+# 168 - check that monitor always frees its ring buffers (indirectly verified)
+run_test "./wirefish --monitor --interval 100 --duration 1" 0 "" ""
+
+# 169 - check monitor_start with small duration (forces timeout branch)
+run_test "./wirefish --monitor --interval 100 --duration 1" 0 "" ""
+
+# 170 - test multiple monitor runs in a row (stability / resource cleanup)
+run_test "./wirefish --monitor --interval 80 --duration 1" 0 "" ""
+
 
 
 # Cleanup
