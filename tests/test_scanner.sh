@@ -758,6 +758,28 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-5" 1 "" "Traceroute failed
 # 213 scan with ports range containing leading zeros
 run_test "./wirefish --scan --target 127.0.0.1 --ports 001-003" 0 "PORT  STATE" ""
 
+# 214 - monitor: rapid sampling fills rolling average window
+run_test "./wirefish --monitor --interval 1" 0 "IFACE" ""
+
+# 215 - monitor JSON after many samples (JSON header)
+run_test "./wirefish --monitor --interval 1 --json" 0 "\"type\":\"monitor\"" ""
+
+# 216 - monitor CSV after many samples (CSV header)
+run_test "./wirefish --monitor --interval 1 --csv" 0 "iface,rx_bytes,tx_bytes" ""
+
+# 217 - tracer JSON fail path 
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3 --json" 1 "requires root privileges" ""
+
+# 218 - tracer CSV fail path 
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-5 --csv" 1 "requires root privileges" ""
+
+# 219 - tracer ICMP build triggered multiple times before root error
+run_test "./wirefish --trace --target 1.1.1.1 --ttl 3-7" 1 "requires root privileges" ""
+
+# 220 - monitor with tiny interval stresses the series + ring buffer
+run_test "./wirefish --monitor --interval 2" 0 "RX_BYTES" ""
+
+
 # Cleanup
 rm -f tmp_out tmp_err
 
