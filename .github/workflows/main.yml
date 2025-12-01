@@ -5,33 +5,15 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # ===== Job 1: Build and Upload wirefish =====
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Build wirefish (release)
-      run: make wirefish
-
-    - name: Upload wirefish Executable
-      uses: actions/upload-artifact@v4
-      with:
-        name: wirefish Executable
-        path: ./wirefish
-
-  # ===== Job 2: Test and Coverage =====
-  # This job depends on the 'build' job
   test:
     runs-on: ubuntu-latest
-    needs: build
     steps:
     - uses: actions/checkout@v4
 
     - name: Build wirefish-test (with coverage)
       run: make wirefish-test
 
-    - name: Create symlink for test script
+    - name: Use coverage-enabled binary for tests
       run: cp wirefish-test wirefish
 
     - name: Make test script executable
@@ -45,17 +27,8 @@ jobs:
     - name: Run gcov coverage reports
       if: ${{ always() }}
       run: |
-        # First, list all object files to see what's available
-        echo "=== Available object files ==="
-        find . -name "*.gcno" -o -name "*.gcda" | head -20
-        
-        echo "=== Running gcov on specific files ==="
-        # Run gcov on the main test binary to generate coverage for all sources
-        gcov -o . wirefish-test 2>/dev/null || true
-        
-        # Alternative: Run gcov on all object files
         echo "=== Running gcov on all gcda files ==="
-        find . -name "*.gcda" -exec gcov {} \; 2>/dev/null || true
+        gcov $(find . -name "*.gcda")
         
         echo "=== Generated gcov files ==="
         ls -la *.gcov 2>/dev/null || echo "No gcov files generated"
