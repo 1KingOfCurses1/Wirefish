@@ -923,7 +923,6 @@ run_test "./wirefish --json --monitor --interval 200" 0 "\"rx_bps\":" ""
 # 264 - csv flag before monitor mode
 run_test "./wirefish --csv --monitor --interval 200" 0 "iface,rx_bytes,tx_bytes" ""
 
-
 # 265 - monitor: interval 5 json (more samples)
 run_test "./wirefish --monitor --interval 5 --json" 0 "\"rx_avg_bps\":" ""
 
@@ -932,6 +931,57 @@ run_test "./wirefish --monitor --interval 5 --csv" 0 "iface,rx_bytes,tx_bytes" "
 
 # 267 - monitor: interval 5 table (more samples)
 run_test "./wirefish --monitor --interval 5" 0 "RX_AVG_BPS   TX_AVG_BPS" ""
+
+# 268 trace using uppercase hostname (resolve ok, then raw socket fail)
+run_test "./wirefish --trace --target GOOGLE.COM --ttl 1-3" 1 "" "requires root privileges"
+
+# 269 trace with default TTL (no ttl flag)
+run_test "./wirefish --trace --target 8.8.8.8" 1 "" "requires root privileges"
+
+# 270 trace mode at end of command
+run_test "./wirefish --target 8.8.8.8 --ttl 1-3 --trace" 1 "" "requires root privileges"
+
+# 271 trace json with valid ttl (fails at raw socket)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 2-4 --json" 1 "" "requires root privileges"
+
+# 272 trace csv with valid ttl (fails at raw socket)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 2-4 --csv" 1 "" "requires root privileges"
+
+# 273 ttl missing number after dash
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-" 1 "" "Invalid number"
+
+# 274 ttl containing spaces around dash
+run_test "./wirefish --trace --target 8.8.8.8 --ttl ' 1 - 3 '" 1 "" "Range must be in format"
+
+# 275 negative ttl start
+run_test "./wirefish --trace --target 8.8.8.8 --ttl -1-5" 1 "" "TTL values must be in range"
+
+# 276 negative ttl inside format
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1--5" 1 "" "Invalid number"
+
+# 277 ttl min==max single hop
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root privileges"
+
+# 278 large upper ttl bound
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-30" 1 "" "requires root privileges"
+
+# 279 ttl above allowed limit
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-999" 1 "" "TTL values must be in range"
+
+# 280 invalid characters mid-ttl
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1x-3" 1 "" "Invalid characters in range"
+
+# 281 invalid characters at end of ttl
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3x" 1 "" "Invalid characters at end"
+
+# 282 missing ttl value entirely
+run_test "./wirefish --trace --target 8.8.8.8 --ttl" 1 "" "Error: --ttl requires"
+
+# 283 unknown flag in trace mode
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3 --weird" 1 "" "Unknown argument"
+
+# 284 mixing trace + scan is illegal
+run_test "./wirefish --trace --scan --target 8.8.8.8 --ttl 1-3" 1 "" "Only one mode"
 
 
 # Cleanup
