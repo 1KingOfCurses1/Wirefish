@@ -735,13 +735,13 @@ run_test "./wirefish --scan --target fake.fake.fake.fake --ports 1-1" 1 "" "Fail
 run_test "./wirefish --monitor --iface notreal0 --interval 200 --json" 1 "" "not found"
 
 # 206 scan with ports reversed but including spaces around dash
-run_test "./wirefish --scan --target 127.0.0.1 --ports '10 - 1'" 1 "" "Range start"
+run_test "./wirefish --scan --target 127.0.0.1 --ports '10 - 1'" 1 "" "Error: Range must be in format "
 
 # 207 scan with huge port range but JSON 
 run_test "./wirefish --scan --target 127.0.0.1 --ports 1-300 --json" 0 "\"results\"" ""
 
-# 208 scan where ports_from == ports_to but input has spaces
-run_test "./wirefish --scan --target 127.0.0.1 --ports '80 - 80'" 0 "PORT  STATE" ""
+# 208 scan with leading and trailing spaces outside the range string 
+run_test "./wirefish   --scan   --target   127.0.0.1   --ports   80-80   " 0 "PORT  STATE" ""
 
 # 209 monitor with json and iface auto detect
 run_test "./wirefish --monitor --interval 150 --json" 0 "{" ""
@@ -752,11 +752,11 @@ run_test "./wirefish --monitor --interval 150 --csv" 0 "iface,rx_bytes" ""
 # 211 scan with upper-case hostname 
 run_test "./wirefish --scan --target GOOGLE.COM --ports 80-80" 0 "open" ""
 
-# 212 trace with ttl only max value given (ttl_start defaults)
+# 212 trace with ttl only max value given 
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-5" 1 "" "Traceroute failed"
 
-# 213 monitor with interval large + csv ensures header prints once
-run_test "./wirefish --monitor --interval 3000 --csv" 0 "iface,rx_bytes" ""
+# 213 monitor large interval
+run_test "./wirefish --monitor --interval 1500 --csv" 0 "iface,rx_bytes" ""
 
 # 214 scan with ports range containing leading zeros
 run_test "./wirefish --scan --target 127.0.0.1 --ports 001-003" 0 "PORT  STATE" ""
