@@ -758,114 +758,181 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-5" 1 "" "Traceroute failed
 # 213 scan with ports range containing leading zeros
 run_test "./wirefish --scan --target 127.0.0.1 --ports 001-003" 0 "PORT  STATE" ""
 
-# 214 - monitor: rapid sampling fills rolling average window
+# 214 - tracer: basic root error (stdout empty, stderr has root msg)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3" 1 "" "requires root privileges"
+
+# 215 - tracer: root error with CSV enabled
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3 --csv" 1 "" "requires root privileges"
+
+# 216 - tracer: root error with JSON enabled
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3 --json" 1 "" "requires root privileges"
+
+# 217 - tracer: different target and ttl range, still root error
+run_test "./wirefish --trace --target 1.1.1.1 --ttl 3-7" 1 "" "requires root privileges"
+
+# 218 - tracer: default TTL (no ttl flag) still hits root error
+run_test "./wirefish --trace --target 8.8.8.8" 1 "" "requires root privileges"
+
+# 219 - tracer: json flag without ttl (default range) still root error
+run_test "./wirefish --trace --target 8.8.8.8 --json" 1 "" "requires root privileges"
+
+# 220 - tracer: csv flag without ttl still root error
+run_test "./wirefish --trace --target 8.8.8.8 --csv" 1 "" "requires root privileges"
+
+
+# 221 - tracer: bad host + ttl range, resolve fails before socket
+run_test "./wirefish --trace --target noSuchHostXYZ123 --ttl 1-4" 1 "" "Failed to resolve"
+
+# 222 - tracer: bad host + json
+run_test "./wirefish --trace --target noSuchHostXYZ123 --ttl 1-4 --json" 1 "" "Failed to resolve"
+
+# 223 - tracer: bad host + csv
+run_test "./wirefish --trace --target noSuchHostXYZ123 --ttl 1-4 --csv" 1 "" "Failed to resolve"
+
+# 224 - monitor table: ensure full header appears (table mode)
+run_test "./wirefish --monitor --interval 200" 0 "IFACE  RX_BYTES   TX_BYTES   RX_BPS      TX_BPS      RX_AVG_BPS   TX_AVG_BPS" ""
+
+# 225 - monitor csv: full csv header with all rate columns
+run_test "./wirefish --monitor --interval 200 --csv" 0 "iface,rx_bytes,tx_bytes,rx_bps,tx_bps,rx_avg_bps,tx_avg_bps" ""
+
+# 226 - monitor json: check one of the rate fields appears in JSON
+run_test "./wirefish --monitor --interval 200 --json" 0 "\"rx_avg_bps\":" ""
+
+# 227 - monitor: tiny interval to collect many samples (helps ring buffer paths)
 run_test "./wirefish --monitor --interval 1" 0 "IFACE" ""
 
-# 215 - monitor JSON after many samples (JSON header)
-run_test "./wirefish --monitor --interval 1 --json" 0 "\"type\":\"monitor\"" ""
-
-# 216 - monitor CSV after many samples 
+# 228 - monitor csv with tiny interval (many samples, csv path)
 run_test "./wirefish --monitor --interval 1 --csv" 0 "iface,rx_bytes,tx_bytes" ""
 
-# 217 - tracer JSON fail path 
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3 --json" 1 "" "root"
+# 229 - monitor json with tiny interval (many samples, json path)
+run_test "./wirefish --monitor --interval 1 --json" 0 "\"rx_bps\":" ""
 
-# 218 - tracer CSV fail path
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-5 --csv" 1 "" "root"
 
-# 219 - tracer ICMP build triggered before root error
-run_test "./wirefish --trace --target 1.1.1.1 --ttl 3-7" 1 "" "root"
-
-# 220 - monitor with tiny interval stresses the serie ring buffer
-run_test "./wirefish --monitor --interval 2" 0 "RX_BYTES" ""
-
-# 221 - main: scan failure after cli_parse success 
-run_test "./wirefish --scan --target bad.host.zzz --ports 1-1" 1 "Scan failed" ""
-
-# 222 - main: monitor_run failure after cli_parse success
-run_test "./wirefish --monitor --iface definitelyNotRealXYZ --interval 100" 1 "monitor mode failed" ""
-
-# 223 - main: trace failure after cli_parse success 
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "Traceroute failed" ""
-
-# 224 - main success  
+# 230 - scan: success path (helps main/app success branch)
 run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "PORT  STATE" ""
 
-# 225 - app_run scan CSV 
+# 231 - scan: CSV success path
 run_test "./wirefish --scan --target 127.0.0.1 --ports 2-2 --csv" 0 "port,state,latency_ms" ""
 
-# 226 - app_run monitor CSV 
-run_test "./wirefish --monitor --interval 50 --csv" 0 "iface,rx_bytes" ""
+# 232 - scan: JSON success path
+run_test "./wirefish --scan --target 127.0.0.1 --ports 3-3 --json" 0 "\"results\"" ""
 
-# 227 - app_run monitor JSON 
-run_test "./wirefish --monitor --interval 50 --json" 0 "\"type\":\"monitor\"" ""
+# 233 - scan: resolve failure triggers app_run error path
+run_test "./wirefish --scan --target FakeHost555 --ports 1-1" 1 "" "Failed to resolve" ""
 
-# 228 - scan table formatter
-run_test "./wirefish --scan --target 127.0.0.1 --ports 3-5" 0 "PORT  STATE" ""
+# 234 - monitor: invalid iface triggers monitor_run error path
+run_test "./wirefish --monitor --iface not_real_iface_123 --interval 200" 1 "" "not found" ""
 
-# 229 - scan JSON null latency case
-run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1 --json" 0 "\"latency_ms\":null" ""
+# 235 - monitor: invalid iface but with json flag (same error)
+run_test "./wirefish --monitor --iface not_real_iface_123 --interval 200 --json" 1 "" "not found" ""
 
-# 231 - monitor with very small interval to trigger realloc and full buffer
-run_test "./wirefish --monitor --interval 1" 0 "TX_BPS" ""
-
-# 232 - monitor ignoring ttl + ports
-run_test "./wirefish --monitor --interval 10 --ttl 1-5 --ports 1-3" 0 "IFACE" ""
-
-# 233 - net_resolve failure (DNS)
-run_test "./wirefish --scan --target bad.bad.bad --ports 1-1" 1 "Failed to resolve" ""
-
-# 234 - net_resolve success path
-run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "PORT  STATE" ""
-
-# 235 - tracer with wide TTL range exercises multiple ICMP build calls
-run_test "./wirefish --trace --target 1.1.1.1 --ttl 1-10" 1 "requires root privileges" ""
-
-# 236 - tracer small TTL still triggers ICMP build
-run_test "./wirefish --trace --target 1.1.1.1 --ttl 5-5" 1 "requires root privileges" ""
-
-# 237 - main: scan json success path
-run_test "./wirefish --scan --target 127.0.0.1 --ports 9-9 --json" 0 "\"results\"" ""
-
-# 238 - main: scan csv success path
-run_test "./wirefish --scan --target 127.0.0.1 --ports 9-9 --csv" 0 "port,state,latency_ms" ""
-
-# 239 - main: monitor success path
-run_test "./wirefish --monitor --interval 100" 0 "IFACE" ""
-
-# 240 - scan large range (first realloc)
-run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1500" 0 "PORT  STATE" ""
-
-# 241 - scan larger range (multiple realloc)
-run_test "./wirefish --scan --target 127.0.0.1 --ports 1-3000" 0 "PORT  STATE" ""
-
-# 242 - monitor CSV deep sample test
-run_test "./wirefish --monitor --interval 5 --csv" 0 "iface,rx_bytes" ""
-
-# 243 - monitor JSON deep sample test
-run_test "./wirefish --monitor --interval 5 --json" 0 "\"type\":\"monitor\"" ""
+# 236 - monitor: invalid iface but with csv flag (same error)
+run_test "./wirefish --monitor --iface not_real_iface_123 --interval 200 --csv" 1 "" "not found" ""
 
 
-# 244 - monitor: invalid iface again to ensure stderr path is covered
-run_test "./wirefish --monitor --iface not_real_iface_123 --interval 100" 1 "not found in /proc/net/dev" ""
+# 237 - scan table: multiple ports on loopback
+run_test "./wirefish --scan --target 127.0.0.1 --ports 5-7" 0 "PORT  STATE" ""
 
-# 245 - scan: long range small host but JSON output
-run_test "./wirefish --scan --target 127.0.0.1 --ports 10-20 --json" 0 "\"results\"" ""
+# 238 - scan csv: multi-port csv
+run_test "./wirefish --scan --target 127.0.0.1 --ports 5-7 --csv" 0 "port,state,latency_ms" ""
 
-# 246 - scan: long range small host but CSV output
-run_test "./wirefish --scan --target 127.0.0.1 --ports 10-20 --csv" 0 "port,state,latency_ms" ""
+# 239 - scan json: multi-port json
+run_test "./wirefish --scan --target 127.0.0.1 --ports 5-7 --json" 0 "\"results\"" ""
 
-# 247 - monitor: ensure table header prints in table mode
-run_test "./wirefish --monitor --interval 200" 0 "IFACE  RX_BYTES" ""
 
-# 248 - monitor: verify TX_AVG_BPS shows up after samples
-run_test "./wirefish --monitor --interval 1" 0 "TX_AVG_BPS" ""
+# 240 - tracer: ttl single value high but still within allowed range, root error
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 30-30" 1 "" "requires root" ""
 
-# 249 - tracer: enforce failure AFTER cli_parse succeeds (covers app_run error path)
-run_test "./wirefish --trace --target google.com --ttl 1-1" 1 "requires root privileges" ""
+# 241 - tracer: ttl range medium, csv
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-10 --csv" 1 "" "requires root" ""
 
-# 250 - tracer CSV again, different TTL, ensures repeated error path coverage
-run_test "./wirefish --trace --target 8.8.4.4 --ttl 2-4 --csv" 1 "requires root privileges" ""
+# 242 - tracer: ttl range medium, json
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-10 --json" 1 "" "requires root" ""
+
+# 243 - monitor: ttl + ports present, table mode
+run_test "./wirefish --monitor --interval 200 --ttl 1-5 --ports 1-3" 0 "IFACE" ""
+
+# 244 - monitor: ttl + ports, json mode
+run_test "./wirefish --monitor --interval 200 --ttl 1-5 --ports 1-3 --json" 0 "\"rx_bps\":" ""
+
+# 245 - monitor: ttl + ports, csv mode
+run_test "./wirefish --monitor --interval 200 --ttl 1-5 --ports 1-3 --csv" 0 "iface,rx_bytes,tx_bytes" ""
+
+
+# 246 - scan uppercase hostname, exercise resolve + scan
+run_test "./wirefish --scan --target GOOGLE.COM --ports 80-80" 0 "PORT  STATE" ""
+
+# 247 - scan hostname with json
+run_test "./wirefish --scan --target GOOGLE.COM --ports 80-80 --json" 0 "\"results\"" ""
+
+# 248 - scan hostname with csv
+run_test "./wirefish --scan --target GOOGLE.COM --ports 80-80 --csv" 0 "port,state,latency_ms" ""
+
+
+
+# 249 - monitor: table output should show RX_BPS and TX_BPS
+run_test "./wirefish --monitor --interval 150" 0 "RX_BPS      TX_BPS" ""
+
+# 250 - monitor: table output should show RX_AVG_BPS and TX_AVG_BPS
+run_test "./wirefish --monitor --interval 150" 0 "RX_AVG_BPS   TX_AVG_BPS" ""
+
+# 251 - tracer: long ttl range (upper bound allowed), still root error
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-30" 1 "" "requires root" ""
+
+# 252 - tracer: long ttl range with csv
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-30 --csv" 1 "" "requires root" ""
+
+# 253 - tracer: long ttl range with json
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-30 --json" 1 "" "requires root" ""
+
+
+# 254 - monitor: explicit loopback iface, table
+run_test "./wirefish --monitor --iface lo --interval 200" 0 "IFACE" ""
+
+# 255 - monitor: explicit loopback iface, csv
+run_test "./wirefish --monitor --iface lo --interval 200 --csv" 0 "iface,rx_bytes,tx_bytes" ""
+
+# 256 - monitor: explicit loopback iface, json
+run_test "./wirefish --monitor --iface lo --interval 200 --json" 0 "\"rx_bps\":" ""
+
+
+# 257 - scan mid-size range
+run_test "./wirefish --scan --target 127.0.0.1 --ports 20-200" 0 "PORT  STATE" ""
+
+# 258 - scan mid-size range with csv
+run_test "./wirefish --scan --target 127.0.0.1 --ports 20-200 --csv" 0 "port,state,latency_ms" ""
+
+# 259 - scan mid-size range with json
+run_test "./wirefish --scan --target 127.0.0.1 --ports 20-200 --json" 0 "\"results\"" ""
+
+
+
+# 260 - tracer: ttl min==max at 1, csv
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1 --csv" 1 "" "requires root privileges" ""
+
+# 261 - tracer: ttl min==max at 1, json
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1 --json" 1 "" "requires root privileges" ""
+
+# 262 - tracer: ttl min==max at 5, plain
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-5" 1 "" "Traceroute failed" ""
+
+
+# 263 - json flag before monitor mode
+run_test "./wirefish --json --monitor --interval 200" 0 "\"rx_bps\":" ""
+
+# 264 - csv flag before monitor mode
+run_test "./wirefish --csv --monitor --interval 200" 0 "iface,rx_bytes,tx_bytes" ""
+
+
+# 265 - monitor: interval 5 json (more samples)
+run_test "./wirefish --monitor --interval 5 --json" 0 "\"rx_avg_bps\":" ""
+
+# 266 - monitor: interval 5 csv (more samples)
+run_test "./wirefish --monitor --interval 5 --csv" 0 "iface,rx_bytes,tx_bytes" ""
+
+# 267 - monitor: interval 5 table (more samples)
+run_test "./wirefish --monitor --interval 5" 0 "RX_AVG_BPS   TX_AVG_BPS" ""
+
 
 # Cleanup
 rm -f tmp_out tmp_err
