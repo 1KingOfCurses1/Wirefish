@@ -1,154 +1,109 @@
-# Wirefish – Network Diagnostics & Monitoring Toolkit
+# 🐟 Wirefish – Network Diagnostics & Monitoring Toolkit
 
-Wirefish is a lightweight command-line network diagnostics suite designed to provide scanning, traceroute, and interface bandwidth monitoring in a single unified tool. It is intended as an educational project demonstrating systems programming, raw sockets, ICMP construction, live interface monitoring, and modular C design.
+**Wirefish** is a lightweight, command-line network diagnostics suite designed for education in **systems programming** and networking. It unifies host scanning, traceroute, and interface bandwidth monitoring into a single tool, demonstrating key concepts like **raw sockets**, **ICMP construction**, and live interface monitoring.
 
-## Features
+---
+
+## ✨ Features
 
 ### ✔ Host Scanner
-- Performs basic host reachability scans.
-- Uses ICMP echo requests to detect active hosts.
-- Collects per-host statistics (RTT, success/fail counts).
+* Performs basic host reachability scans using **ICMP echo requests**.
+* Collects per-host statistics, including **Round-Trip Time (RTT)** and success/fail counts.
 
 ### ✔ Traceroute (ICMP-based)
-- Implements a simplified traceroute using raw ICMP sockets.
-- Constructs ICMP Echo packets manually (checksum + headers).
-- Uses increasing TTL values to discover intermediate hops.
-- Resolves hostnames when possible.
-- Prints hop number, IP address, hostname, and RTT.
+* Implements a simplified traceroute using **raw ICMP sockets**.
+* Constructs ICMP Echo packets manually (including checksums and headers). 
+
+[Image of the ICMP packet structure]
+
+* Uses **increasing TTL values** to discover and map intermediate hops.
+* Resolves hostnames when possible, printing hop number, IP address, hostname, and RTT.
 
 ### ✔ Interface Bandwidth Monitor
-- Polls `/proc/net/dev` to read interface RX/TX counters.
-- Computes instantaneous RX/TX bitrate (bps) and rolling averages.
-- Fully decoupled from formatting: `monitor.c` only gathers data; `fmt.c` prints results.
-- Handles Ctrl+C clean exit.
-- Supports user-defined interface, interval, and duration.
+* Polls the Linux-specific **`/proc/net/dev`** file to read interface RX (receive) and TX (transmit) byte counters.
+* Computes **instantaneous RX/TX bitrate (bps)** and rolling averages.
+* **Clean Output Separation:** `monitor.c` gathers data and calculates rates; `fmt.c` handles all formatting and printing.
+* Supports user-defined interface, sample interval, and duration.
 
 ### ✔ Unified CLI Front-End
 All functionality is accessed via a single binary:
+* `./wirefish --scan --subnet 192.168.1.0/24`
+* `./wirefish --trace <host>`
+* `./wirefish --monitor --iface eth0 --interval 100`
 
-./wirefish --scan  
-./wirefish --trace <host>  
-./wirefish --monitor --iface eth0 --interval 100
+---
 
-## Project Structure
-app/        – main dispatcher (CLI → correct module)  
-cli/        – command-line argument parser  
-scanner/    – host scanner (ICMP reachability)  
-tracer/     – traceroute (tracer.c + icmp.c)  
-monitor/    – interface bandwidth monitor  
-fmt/        – output formatting for scanner/tracer/monitor  
-net/        – generic socket utilities  
-model/      – shared data models and structs  
-timeutil/   – time utilities (ms_now, ms_sleep, timestamp formatting)
-log/        – logging utilities with level-based filtering
-tests/      – automated test suite for all modules
+## 🚀 Key Technical Concepts
 
-## Log
-### Contains the logging subsystem for debugging and runtime diagnostics:
-- log.c / log.h: Printf-style logging with configurable severity levels
-- Levels: LOG_DEBUG (0), LOG_INFO (1), LOG_WARN (2), LOG_ERROR (3)
-- Functions: log_debug(), log_info(), log_warn(), log_error()
-- Filtering: Set minimum level with log_set_level() to control verbosity
-- Output: All messages written to stderr with level tags (e.g., [debug], [error])
-- Usage: Supports variadic arguments for formatted logging (e.g., log_info("Port %d is %s", port, state))
+Wirefish is an educational project focusing on the following low-level networking and system access techniques:
 
-## Build Instructions
+### Raw Sockets & ICMP Construction
+The **scanner** and **traceroute** modules use **Raw Sockets** to gain low-level protocol access. This requires manual construction of the **ICMP packet**, including the header (Type, Code, ID, Seq) and calculating the correct **16-bit Internet checksum** within `icmp.c`.
+
+### Reading Interface Stats (Rate Calculation)
+The monitor module computes the network speed using the counters read from `/proc/net/dev`.
+The rate calculation is:
+$$\text{rate}_{\text{bps}} = \frac{(\Delta \text{bytes} \times 8)}{\Delta t_{\text{sec}}}$$
+
+### Modular C Design
+The project structure enforces clean separation of duties, such as the clear split between the core logic (`monitor.c`, `tracer.c`) and the output formatting (`fmt.c`), making the code easy to understand and maintain.
+
+---
+
+## ⚙️ Project Structure
+
+The codebase is organized into logical, domain-specific directories:
+
+| Directory | Purpose |
+| :--- | :--- |
+| `app/` | Main application dispatcher (routes CLI command to correct module) |
+| `cli/` | Command-line argument parsing |
+| `scanner/` | Host scanner logic |
+| `tracer/` | Traceroute logic (`tracer.c` + `icmp.c`) |
+| `monitor/` | Interface bandwidth monitor logic |
+| `fmt/` | Output formatting (text, JSON, CSV) |
+| `net/` | Generic socket utilities |
+| `log/` | **Logging subsystem** with level-based filtering |
+
+### 💬 Logging Subsystem (`log/`)
+Provides `printf`-style logging with configurable severity: `LOG_DEBUG (0)`, `LOG_INFO (1)`, `LOG_WARN (2)`, `LOG_ERROR (3)`. All output is written to **stderr** with level tags (e.g., `[error]`).
+
+---
+
+## 💻 Command Summary
+
+| Mode | Option | Description | Default |
+| :--- | :--- | :--- | :--- |
+| **Scanner** | `--scan --subnet (CIDR)` | Scan for hosts in a CIDR block | N/A (Required) |
+| **Traceroute** | `--trace --target (host)` | Map route to a host/IP | N/A (Required) |
+| **Traceroute** | `--ttl (start-max)` | TTL range to use | 1-30 |
+| **Monitor** | `--monitor --iface (name)` | Network interface (e.g., `eth0`) | Auto-detect |
+| **Monitor** | `--interval (ms)` | Sample interval in milliseconds | 100 |
+| **Monitor** | `--duration (seconds)` | Total run time (0 = infinite) | 0 |
+| **Output** | `--json` / `--csv` | Change output format | Text |
+| **Other** | `--help` | Show usage message | N/A |
+
+---
+
+## 🛠 Build Instructions
 
 ### Requirements
-- GCC  
-- Linux environment (raw sockets + /proc/net/dev)  
-- Make  
+* **GCC**
+* **Make**
+* **Linux Environment** (Mandatory for raw sockets and `/proc/net/dev` access)
 
-### Build
+### Build & Run
+```bash
+# Build the executable
 make
-./makefile
 
-### Run Examples
-./wirefish --trace google.com  
-./wirefish --monitor --iface eth0 --interval 100  
-./wirefish --scan --subnet 192.168.1.0/24  
+# Example: Run traceroute
+./wirefish --trace google.com
 
-## Key Technical Concepts
+# Example: Run bandwidth monitor
+./wirefish --monitor --iface eth0 --interval 100
 
-### Raw Sockets
-Used for traceroute and scanning to manually build ICMP packets, providing low-level protocol access.
-
-### ICMP Packet Construction
-`icmp.c` manually constructs:
-- ICMP header (type, code, id, seq, checksum)  
-- Payload  
-- Correct 16-bit Internet checksum  
-
-### Reading Interface Stats
-The monitor module reads `/proc/net/dev` every interval:
-- RX bytes  
-- TX bytes  
-
-Rates are computed using:
-rate_bps = (delta_bytes * 8) / delta_time_sec
-
-### Clean Output Separation
-- `monitor.c` → calculates stats  
-- `fmt.c` → prints formatted tables  
-
-## Command Summary
-
-### Modes (choose one):
-
-  --scan              TCP port scanning
-  
-  --trace             ICMP traceroute
-  
-  --monitor           Network interface monitoring
-
-### Scan Options:
-
-  --target (host)     Target hostname or IP (required)
-  
-  --ports (from-to)   Port range (default: 1-1024)
-
-### Trace Options:
-
-  --target (host)     Target hostname or IP (required)
-  
-  --ttl (start-max)   TTL range (default: 1-30)
-
-### Monitor Options:
-
-  --iface (name)      Network interface (default: auto-detect)
-  
-  --interval (ms)     Sample interval in milliseconds (default: 100)
-
-### Output Options:
-
-  --json              Output in JSON format
-  
-  --csv               Output in CSV format
-
-### Other:
-
-  --help              Show this help message
-  
-### Traceroute
---trace (hostname or IP)
-
-### Monitor
---monitor  
---iface (name)         (eth0, wlan0, etc.)  
---interval (ms)  
---duration (seconds)   (0 = infinite)
-
-### Scanner
---scan --subnet (CIDR)
-
-## Makefile Notes
-Compiles and links all modules:
-
-gcc -o wirefish \
-    app/main.c app/app.c cli/cli.c \
-    scanner/scanner.c tracer/tracer.c tracer/icmp.c \
-    monitor/monitor.c fmt/fmt.c net/net.c \
-    timeutil/timeutil.c
+```
 
 ## Limitations
 - Linux only (requires `/proc/net/dev` and raw sockets)  
@@ -156,7 +111,6 @@ gcc -o wirefish \
 - Simplified error-handling as this is a teaching project  
 
 ## Authors
-Team 25 – DDOS Project
 Shan Truong,
 Aryan Verma,
 Youssef E,
