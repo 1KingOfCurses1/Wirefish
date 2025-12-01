@@ -690,7 +690,7 @@ run_test "./wirefish --monitor --iface looooooooooooooooooooooooooooo --interval
 run_test "./wirefish --help --json" 0 "Usage: wirefish" ""
 
 # 191 - filtered port explicitly 
-run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "filtered" "-"
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "filtered" ""
 
 # 192 - scan table formatting: check that latency column exists 
 run_test "./wirefish --scan --target 127.0.0.1 --ports 80-80" 0 "LATENCY" ""
@@ -730,6 +730,36 @@ run_test "./wirefish --scan --target 127.0.0.1 --ports \"\"" 1 "" "Range must be
 
 # 204 scan with hostname containing dots
 run_test "./wirefish --scan --target fake.fake.fake.fake --ports 1-1" 1 "" "Failed to resolve"
+
+# 205 monitor json on invalid iface should still error
+run_test "./wirefish --monitor --iface notreal0 --interval 200 --json" 1 "" "not found"
+
+# 206 scan with ports reversed but including spaces around dash
+run_test "./wirefish --scan --target 127.0.0.1 --ports '10 - 1'" 1 "" "Range start"
+
+# 207 scan with huge port range but JSON 
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-300 --json" 0 "\"results\"" ""
+
+# 208 scan where ports_from == ports_to but input has spaces
+run_test "./wirefish --scan --target 127.0.0.1 --ports '80 - 80'" 0 "PORT  STATE" ""
+
+# 209 monitor with json and iface auto detect
+run_test "./wirefish --monitor --interval 150 --json" 0 "{" ""
+
+# 210 monitor with csv and iface auto detect
+run_test "./wirefish --monitor --interval 150 --csv" 0 "iface,rx_bytes" ""
+
+# 211 scan with upper-case hostname 
+run_test "./wirefish --scan --target GOOGLE.COM --ports 80-80" 0 "open" ""
+
+# 212 trace with ttl only max value given (ttl_start defaults)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-5" 1 "" "Traceroute failed"
+
+# 213 monitor with interval large + csv ensures header prints once
+run_test "./wirefish --monitor --interval 3000 --csv" 0 "iface,rx_bytes" ""
+
+# 214 scan with ports range containing leading zeros
+run_test "./wirefish --scan --target 127.0.0.1 --ports 001-003" 0 "PORT  STATE" ""
 
 # Cleanup
 rm -f tmp_out tmp_err
