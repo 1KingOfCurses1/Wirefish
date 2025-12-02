@@ -906,7 +906,6 @@ run_test "./wirefish --scan --target 127.0.0.1 --ports 20-200 --csv" 0 "port,sta
 run_test "./wirefish --scan --target 127.0.0.1 --ports 20-200 --json" 0 "\"results\"" ""
 
 
-
 # 260 - tracer: ttl min==max at 1, csv
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1 --csv" 1 "" "requires root privileges" ""
 
