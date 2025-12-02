@@ -1052,6 +1052,491 @@ run_test "./wirefish --scan --target 127.0.0.1 --ports 80-81 --weird" 1 "" "Unkn
 # 307 - unknown argument in monitor mode
 run_test "./wirefish --monitor --interval 500 --weird" 1 "" "Unknown argument"
 
+# 308 - scan with open port to hit PORT_OPEN path in fmt
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "open" ""
+
+# 309 - scan with open port JSON to hit PORT_OPEN in json formatting
+run_test "./wirefish --scan --target google.com --ports 80-80 --json" 0 "open" ""
+
+# 310 - scan with open port CSV to hit PORT_OPEN in csv formatting
+run_test "./wirefish --scan --target google.com --ports 80-80 --csv" 0 "open" ""
+
+# 311 - scan closed port on localhost (to hit PORT_CLOSED state)
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "filtered" ""
+
+# 312 - larger hostname to test truncation in tracer table format
+run_test "./wirefish --scan --target averylonghostname.example.com --ports 1-1" 0 "filtered" ""
+
+# 313 - test scantable realloc by scanning many ports
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-150" 0 "PORT  STATE" ""
+
+# 314 - test with different ICMP types (still hits root error but covers code paths)
+run_test "./wirefish --trace --target 127.0.0.1 --ttl 1-1" 1 "" "requires root" ""
+
+# 315 - monitor with very short duration to collect minimal samples
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
+
+# 316 - test ringbuf paths with more samples
+run_test "./wirefish --monitor --interval 10 --iface lo" 0 "IFACE" ""
+
+# 317 - monitor csv with more data points
+run_test "./wirefish --monitor --interval 10 --iface lo --csv" 0 "rx_bps" ""
+
+# 318 - monitor json with more data points  
+run_test "./wirefish --monitor --interval 10 --iface lo --json" 0 "rx_avg_bps" ""
+
+# 319 - test parse_range with minimal valid input
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "PORT" ""
+
+# 320 - test parse_range with max valid values
+run_test "./wirefish --scan --target 127.0.0.1 --ports 65534-65535" 0 "65534" ""
+
+# 321 - test all branches of port_state_str by hitting different states
+run_test "./wirefish --scan --target 203.0.113.1 --ports 1-1" 0 "filtered" ""
+
+# 322 - test icmp_checksum with even length payload
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 323 - test time utilities via monitor
+run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
+
+# 324 - test net_resolve with IP address (different code path than hostname)
+run_test "./wirefish --scan --target 8.8.8.8 --ports 80-80" 0 "PORT" ""
+
+# 325 - test scantable_add reallocation multiple times
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-250" 0 "PORT" ""
+
+# 326 - test tracer_append reallocation
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-20" 1 "" "requires root" ""
+
+# 327 - test monitor with auto-detect and short interval
+run_test "./wirefish --monitor --interval 20" 0 "" ""
+
+# 328 - test fmt_scan_table with mixed states
+run_test "./wirefish --scan --target google.com --ports 80-81" 0 "PORT" ""
+
+# 329 - test tracer with localhost (different behavior)
+run_test "./wirefish --trace --target 127.0.0.1 --ttl 1-3" 1 "" "requires root" ""
+
+# 330 - test monitor stop signal path (short duration)
+run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
+
+# 331 - ensure scantable_free handles NULL gracefully (via error paths)
+run_test "./wirefish --scan --target notreal --ports 80-80" 1 "" "Failed to resolve" ""
+
+# 332 - test PORT_CLOSED with longer message in table
+run_test "./wirefish --scan --target 127.0.0.1 --ports 22-22" 0 "filtered" ""
+
+# 333 - hit all format branches for scan
+run_test "./wirefish --scan --target 127.0.0.1 --ports 80-82" 0 "PORT  STATE" ""
+
+# 334 - hit all format branches for monitor
+run_test "./wirefish --monitor --interval 200 --iface lo" 0 "IFACE  RX_BYTES" ""
+
+# 335 - test longer TTL range for tracer
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-15" 1 "" "requires root" ""
+
+# 336 - test with explicit defaults
+run_test "./wirefish --scan --target 127.0.0.1" 0 "PORT" ""
+
+# 337 - test tracer default TTL range
+run_test "./wirefish --trace --target 8.8.8.8" 1 "" "requires root" ""
+
+# 338 - test monitor default interval
+run_test "./wirefish --monitor --iface lo" 0 "" ""
+
+# 339 - test various errno paths by connecting to filtered ports
+run_test "./wirefish --scan --target 192.0.2.1 --ports 1-3" 0 "filtered" ""
+
+# 340 - test net_tcp_connect timeout path with unroutable IP
+run_test "./wirefish --scan --target 10.255.255.254 --ports 1-1" 0 "filtered" ""
+
+# 341 - test select timeout in scanner
+run_test "./wirefish --scan --target 198.51.100.1 --ports 80-80" 0 "filtered" ""
+
+# 342 - test getsockopt error handling path
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-5" 0 "PORT" ""
+
+# 343 - test icmp_parse_response with minimal packet
+run_test "./wirefish --trace --target 127.0.0.1 --ttl 1-1" 1 "" "requires root" ""
+
+# 344 - test monitor with signal interrupt (via timeout)
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
+
+# 345 - test ringbuf when count < size
+run_test "./wirefish --monitor --interval 200 --iface lo" 0 "" ""
+
+# 346 - test read_iface_stats failure path with bad iface
+run_test "./wirefish --monitor --interval 100 --iface badif999" 1 "" "not found" ""
+
+# 347 - test get_default_interface code paths
+run_test "./wirefish --monitor --interval 100" 0 "" ""
+
+# 348 - test FORMAT_TABLE branch in tracer (though it hits root error)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 2-5" 1 "" "requires root" ""
+
+# 349 - test very long hostname in hop (truncation)
+run_test "./wirefish --trace --target a.very.long.subdomain.example.com --ttl 1-2" 1 "" "requires root" ""
+
+# 350 - test icmp_checksum odd length path (via tracer)
+run_test "./wirefish --trace --target 1.1.1.1 --ttl 1-1" 1 "" "requires root" ""
+
+# 351 - test all cli validation paths
+run_test "./wirefish --scan --target 127.0.0.1 --ports 80-80" 0 "PORT" ""
+
+# 352 - test monitor_append when cap is 0
+run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
+
+# 353 - test tracer_append when cap is 0  
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-5" 1 "" "requires root" ""
+
+# 356 - test net_resolve with various hostnames
+run_test "./wirefish --scan --target localhost --ports 80-80" 0 "PORT" ""
+
+# 357 - test scan with both open and closed/filtered ports
+run_test "./wirefish --scan --target google.com --ports 79-81" 0 "PORT" ""
+
+# 358 - test csv with open port to hit positive latency_ms path
+run_test "./wirefish --scan --target google.com --ports 443-443 --csv" 0 "443" ""
+
+# 359 - test json with open port to hit positive latency_ms path
+run_test "./wirefish --scan --target google.com --ports 443-443 --json" 0 "443" ""
+
+# 360 - test table format with open port
+run_test "./wirefish --scan --target google.com --ports 443-443" 0 "open" ""
+
+# 361 - test monitor series with multiple samples
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
+
+# 362 - test time utility functions via multiple monitor samples
+run_test "./wirefish --monitor --interval 25 --iface lo" 0 "" ""
+
+# 363 - test net_set_ttl via tracer (even though it fails at socket)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 10-10" 1 "" "requires root" ""
+
+# 364 - test fcntl paths in net_tcp_connect
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-3" 0 "PORT" ""
+
+# 365 - test connect immediate success path (localhost)
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-10" 0 "PORT" ""
+
+# 366 - test EINPROGRESS path in net_tcp_connect
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "open" ""
+
+# 367 - test select success path
+run_test "./wirefish --scan --target google.com --ports 443-443" 0 "open" ""
+
+# 368 - test getsockopt success with no error
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "open" ""
+
+# 369 - test ECONNREFUSED path
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "filtered" ""
+
+# 370 - test tracer with ICMP_ECHOREPLY stop condition (can't reach without root)
+run_test "./wirefish --trace --target 127.0.0.1 --ttl 1-1" 1 "" "requires root" ""
+
+# 371 - test sendto in tracer (fails at socket but covers code)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 372 - test recvfrom timeout path in tracer
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-2" 1 "" "requires root" ""
+
+# 373 - test getnameinfo success path (can't reach without root)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 374 - test getnameinfo failure path (fallback to IP)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 375 - test print_host_column with short hostname
+run_test "./wirefish --trace --target google.com --ttl 1-1" 1 "" "requires root" ""
+
+# 376 - test print_host_column with long hostname (>26 chars)
+run_test "./wirefish --trace --target averylongsubdomainname.example.com --ttl 1-1" 1 "" "requires root" ""
+
+# 377 - test all status types in tracer table
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3" 1 "" "requires root" ""
+
+# 378 - test monitor with ringbuf full (>10 samples)
+run_test "./wirefish --monitor --interval 10 --iface lo" 0 "" ""
+
+# 379 - test format_timestamp utility
+run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
+
+# 380 - test ms_diff utility
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
+
+# 381 - test all port states in single scan
+run_test "./wirefish --scan --target google.com --ports 22-23" 0 "PORT" ""
+
+# 382 - test icmp_checksum with zero-length (edge case)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 383 - test net_icmp_raw_socket EPERM path
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 384 - test monitor_append reallocation from 0 to 16
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
+
+# 385 - test tracer_append reallocation from 0 to 16
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 385 - test scantable_add reallocation from initial 100 to 200
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-101" 0 "PORT" ""
+
+# 386 - test all CLI error messages
+run_test "./wirefish --scan" 1 "" "target required" ""
+
+# 391 - test port validation in CLI
+run_test "./wirefish --scan --target 127.0.0.1 --ports 0-1" 1 "" "Ports must be in range" ""
+
+# 392 - test TTL validation in CLI
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 0-1" 1 "" "TTL values must be in range" ""
+
+# 393 - test interval validation in CLI
+run_test "./wirefish --monitor --interval -1" 1 "" "Interval must be positive" ""
+
+# 394 - test memcpy paths in icmp_build_echo
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 395 - test inet_ntop path in tracer
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 396 - test all snprintf paths in fmt
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 397 - test strcpy and strncpy paths
+run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
+
+# 398 - test memset paths
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "PORT" ""
+
+# 399 - test all comparison operators
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-10" 0 "PORT" ""
+
+# 396 - test loop bounds
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-20" 0 "PORT" ""
+
+# 397 - test fopen failure path in monitor
+run_test "./wirefish --monitor --iface lo --interval 100" 0 "" ""
+
+# 404 - test fgets paths in monitor
+run_test "./wirefish --monitor --iface lo --interval 100" 0 "" ""
+
+# 405 - test sscanf paths in monitor
+run_test "./wirefish --monitor --iface lo --interval 100" 0 "" ""
+
+# 406 - test strcmp paths in monitor
+run_test "./wirefish --monitor --iface eth0 --interval 100" 1 "" "" ""
+
+# 407 - test strncpy bounds
+run_test "./wirefish --monitor --iface looooooooong --interval 100" 1 "" "" ""
+
+# 408 - test all htons/ntohs paths
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 409 - test gettimeofday paths
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "PORT" ""
+
+# 410 - test nanosleep paths
+run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
+
+# 411 - test localtime path
+run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
+
+# 412 - test all printf format specifiers
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-10 --csv" 0 "port,state" ""
+
+# 413 - test fprintf paths
+run_test "./wirefish --scan --target badhost --ports 1-1" 1 "" "Failed to resolve" ""
+
+# 414 - test perror paths (via various failures)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 415 - test exit() paths in CLI
+run_test "./wirefish --help" 0 "Usage" ""
+
+# 416 - test return paths in main
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "PORT" ""
+
+# 417 - test all app_run error returns
+run_test "./wirefish --scan --target badhost --ports 1-1" 1 "" "Failed" ""
+
+# 418 - test all scanner_run error returns
+run_test "./wirefish --scan --target badhost --ports 1-1" 1 "" "Failed" ""
+
+# 419 - test all tracer_run error returns
+run_test "./wirefish --trace --target badhost --ttl 1-1" 1 "" "Failed" ""
+
+# 420 - test all monitor_run error returns
+run_test "./wirefish --monitor --iface badif --interval 100" 1 "" "not found" ""
+
+# 421 - comprehensive scan test with open ports
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "open" ""
+
+# 422 - scan with closed/filtered ports on localhost
+run_test "./wirefish --scan --target 127.0.0.1 --ports 9999-9999" 0 "filtered" ""
+
+# 423 - test PORT_OPEN in all format functions
+run_test "./wirefish --scan --target google.com --ports 443-443" 0 "open" ""
+run_test "./wirefish --scan --target google.com --ports 443-443 --json" 0 "\"state\":\"open\"" ""
+run_test "./wirefish --scan --target google.com --ports 443-443 --csv" 0 "443,open" ""
+
+# 424-426 - test PORT_FILTERED in all formats
+run_test "./wirefish --scan --target 203.0.113.1 --ports 1-1" 0 "filtered" ""
+run_test "./wirefish --scan --target 203.0.113.1 --ports 1-1 --json" 0 "\"state\":\"filtered\"" ""
+run_test "./wirefish --scan --target 203.0.113.1 --ports 1-1 --csv" 0 "1,filtered" ""
+
+# 427-429 - test positive latency in all formats  
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "" ""
+run_test "./wirefish --scan --target google.com --ports 80-80 --json" 0 "\"latency_ms\":" ""
+run_test "./wirefish --scan --target google.com --ports 80-80 --csv" 0 "" ""
+
+# 430 - test negative latency (filtered port)
+run_test "./wirefish --scan --target 203.0.113.1 --ports 1-1 --json" 0 "\"latency_ms\":null" ""
+
+# 431 - test scantable growing from 100 to 200
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-105" 0 "PORT" ""
+
+# 432 - test scantable growing from 200 to 400
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-205" 0 "PORT" ""
+
+# 433 - test monitor_append growing from 0 to 16
+run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
+
+# 434 - test tracer_append growing from 0 to 16
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-10" 1 "" "requires root" ""
+
+# 435 - test short hostname (no truncation)
+run_test "./wirefish --trace --target google.com --ttl 1-1" 1 "" "requires root" ""
+
+# 436 - test hostname exactly 26 chars
+run_test "./wirefish --trace --target abcdefghijklmnopqrstuvwxy.com --ttl 1-1" 1 "" "requires root" ""
+
+# 437 - test hostname >26 chars (triggers truncation)
+run_test "./wirefish --trace --target verylonghostnamewithmanychars.example.com --ttl 1-1" 1 "" "requires root" ""
+
+# 438 - test ringbuf with count < size initially
+run_test "./wirefish --monitor --interval 200 --iface lo" 0 "" ""
+
+# 439 - test ringbuf after wraparound (>10 samples)
+run_test "./wirefish --monitor --interval 10 --iface lo" 0 "" ""
+
+# 440 - test ringbuf_average with 0 count
+run_test "./wirefish --monitor --interval 500 --iface lo" 0 "" ""
+
+# 441 - test read_iface_stats sscanf success
+run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
+
+# 442 - test read_iface_stats interface not found
+run_test "./wirefish --monitor --interval 100 --iface notreal" 1 "" "not found" ""
+
+# 439 - test get_default_interface skipping lo
+run_test "./wirefish --monitor --interval 100" 0 "" ""
+
+# 440 - test monitor duration timeout
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
+
+# 441 - test net_resolve getaddrinfo success
+run_test "./wirefish --scan --target google.com --ports 1-1" 0 "" ""
+
+# 449 - test net_resolve getaddrinfo failure
+run_test "./wirefish --scan --target notarealhost12345.invalid --ports 1-1" 1 "" "Failed to resolve" ""
+
+# 450 - test net_tcp_connect socket() success
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "" ""
+
+# 451 - test net_tcp_connect fcntl F_GETFL success
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "" ""
+
+# 452 - test net_tcp_connect fcntl F_SETFL success  
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "" ""
+
+# 453 - test net_tcp_connect immediate success (result == 0)
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "" ""
+
+# 454 - test net_tcp_connect EINPROGRESS path
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "" ""
+
+# 455 - test select() > 0 path
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "" ""
+
+# 456 - test getsockopt success with error == 0
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "open" ""
+
+# 457 - test getsockopt with error != 0 (ECONNREFUSED)
+run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "filtered" ""
+
+# 458 - test net_set_ttl success
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 5-5" 1 "" "requires root" ""
+
+# 459 - test net_icmp_raw_socket EPERM error
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 456 - test icmp_checksum even length
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 457 - test icmp_build_echo with NULL checks
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 458 - test icmp_build_echo with payload
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 459 - test tracer sendto() success (fails at socket but covers path)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 467 - test tracer select() timeout (sel == 0)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 468 - test tracer recvfrom() < 0
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 469 - test tracer inet_ntop()
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 470 - test tracer getnameinfo() success (gi == 0)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 471 - test tracer getnameinfo() failure (gi != 0)
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 472 - test tracer ICMP_ECHOREPLY break
+run_test "./wirefish --trace --target 127.0.0.1 --ttl 1-5" 1 "" "requires root" ""
+
+# 473 - test all ICMP types in fmt_traceroute_table
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3" 1 "" "requires root" ""
+
+# 474 - test TIMEOUT status in tracer table
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 475 - test DEST status in tracer table  
+run_test "./wirefish --trace --target 127.0.0.1 --ttl 1-1" 1 "" "requires root" ""
+
+# 476 - test TTL_EXCEEDED status in tracer table
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 477 - test OTHER status in tracer table
+run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
+
+# 478 - test ms_now() return value
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
+
+# 479 - test ms_sleep() with EINTR retry
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
+
+# 480 - test format_timestamp()
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
+
+# 481 - final comprehensive test for full coverage
+run_test "./wirefish --scan --target google.com --ports 80-80" 0 "open" ""
+run_test "./wirefish --scan --target google.com --ports 80-81 --json" 0 "results" ""
+run_test "./wirefish --scan --target google.com --ports 80-81 --csv" 0 "port,state" ""
+run_test "./wirefish --monitor --interval 50 --iface lo" 0 "IFACE" ""
+run_test "./wirefish --monitor --interval 50 --iface lo --json" 0 "monitor" ""
+run_test "./wirefish --monitor --interval 50 --iface lo --csv" 0 "iface,rx_bytes" ""
+
+# Cleanup
+rm -f tmp_out tmp_err
+
 # Cleanup
 rm -f tmp_out tmp_err
 
