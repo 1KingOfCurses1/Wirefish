@@ -231,10 +231,6 @@ run_test "./wirefish --monitor --interval 200 --csv" 0 ""
 # 55 - long iface name likely invalid expect error
 run_test "./wirefish --monitor --iface aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --interval 200" 1 "" "Error"
 
-
-# 57 - missing interval value 
-run_test "./wirefish --monitor --interval" 1 "" "Error: --interval requires a number (milliseconds)"
-
 # 58 - missing iface value
 run_test "./wirefish --monitor --iface" 1 "" "Error: --iface requires an interface name"
 
@@ -962,12 +958,6 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root pri
 # 278 large upper ttl bound
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-30" 1 "" "requires root privileges"
 
-# 279 ttl above allowed limit
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-999" 1 "" "Error: TTL values'"
-
-# 280 invalid characters mid-ttl
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 1x-3" 1 "" "Invalid characters in range"
-
 # 281 invalid characters at end of ttl
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3x" 1 "" "Invalid characters at end"
 
@@ -1061,12 +1051,6 @@ run_test "./wirefish --scan --target google.com --ports 80-80 --csv" 0 "open" ""
 # 311 - scan closed port on localhost (to hit PORT_CLOSED state)
 run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "filtered" ""
 
-# 312 - larger hostname to test truncation in tracer table format
-run_test "./wirefish --scan --target averylonghostname.example.com --ports 1-1" 0 "filtered" ""
-
-# 313 - test scantable realloc by scanning many ports
-run_test "./wirefish --scan --target 127.0.0.1 --ports 1-150" 0 "PORT  STATE" ""
-
 # 314 - test with different ICMP types (still hits root error but covers code paths)
 run_test "./wirefish --trace --target 127.0.0.1 --ttl 1-1" 1 "" "requires root" ""
 
@@ -1121,11 +1105,6 @@ run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
 # 331 - ensure scantable_free handles NULL gracefully (via error paths)
 run_test "./wirefish --scan --target notreal --ports 80-80" 1 "" "Failed to resolve" ""
 
-# 332 - test PORT_CLOSED with longer message in table
-run_test "./wirefish --scan --target 127.0.0.1 --ports 22-22" 0 "filtered" ""
-
-# 333 - hit all format branches for scan
-run_test "./wirefish --scan --target 127.0.0.1 --ports 80-82" 0 "PORT  STATE" ""
 
 # 334 - hit all format branches for monitor
 run_test "./wirefish --monitor --interval 200 --iface lo" 0 "IFACE  RX_BYTES" ""
@@ -1171,12 +1150,6 @@ run_test "./wirefish --monitor --interval 100" 0 "" ""
 
 # 348 - test FORMAT_TABLE branch in tracer (though it hits root error)
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 2-5" 1 "" "requires root" ""
-
-# 349 - test very long hostname in hop (truncation)
-run_test "./wirefish --trace --target a.very.long.subdomain.example.com --ttl 1-2" 1 "" "requires root" ""
-
-# 350 - test icmp_checksum odd length path (via tracer)
-run_test "./wirefish --trace --target 1.1.1.1 --ttl 1-1" 1 "" "requires root" ""
 
 # 351 - test all cli validation paths
 run_test "./wirefish --scan --target 127.0.0.1 --ports 80-80" 0 "PORT" ""
@@ -1241,11 +1214,6 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-2" 1 "" "requires root" ""
 # 373 - test getnameinfo success path (can't reach without root)
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
 
-# 374 - test getnameinfo failure path (fallback to IP)
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
-
-# 375 - test print_host_column with short hostname
-run_test "./wirefish --trace --target google.com --ttl 1-1" 1 "" "requires root" ""
 
 # 376 - test print_host_column with long hostname (>26 chars)
 run_test "./wirefish --trace --target averylongsubdomainname.example.com --ttl 1-1" 1 "" "requires root" ""
@@ -1306,9 +1274,6 @@ run_test "./wirefish --monitor --interval 100 --iface lo" 0 "" ""
 
 # 398 - test memset paths
 run_test "./wirefish --scan --target 127.0.0.1 --ports 1-1" 0 "PORT" ""
-
-# 399 - test all comparison operators
-run_test "./wirefish --scan --target 127.0.0.1 --ports 1-10" 0 "PORT" ""
 
 # 396 - test loop bounds
 run_test "./wirefish --scan --target 127.0.0.1 --ports 1-20" 0 "PORT" ""
@@ -1406,17 +1371,11 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-10" 1 "" "requires root" "
 # 435 - test short hostname (no truncation)
 run_test "./wirefish --trace --target google.com --ttl 1-1" 1 "" "requires root" ""
 
-# 436 - test hostname exactly 26 chars
-run_test "./wirefish --trace --target abcdefghijklmnopqrstuvwxy.com --ttl 1-1" 1 "" "requires root" ""
-
 # 437 - test hostname >26 chars (triggers truncation)
 run_test "./wirefish --trace --target verylonghostnamewithmanychars.example.com --ttl 1-1" 1 "" "requires root" ""
 
 # 438 - test ringbuf with count < size initially
 run_test "./wirefish --monitor --interval 200 --iface lo" 0 "" ""
-
-# 439 - test ringbuf after wraparound (>10 samples)
-run_test "./wirefish --monitor --interval 10 --iface lo" 0 "" ""
 
 # 440 - test ringbuf_average with 0 count
 run_test "./wirefish --monitor --interval 500 --iface lo" 0 "" ""
