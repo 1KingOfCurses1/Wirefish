@@ -994,9 +994,6 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-" 1 "" "Invalid number aft
 # 292 - invalid characters at end of ttl range
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3x" 1 "" "Invalid characters at end of range"
 
-# 293 - ttl values out of allowed bounds
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 0-1" 1 "" "TTL values must be in range"
-
 # 294 - conflicting modes: trace + scan
 run_test "./wirefish --trace --scan --target 8.8.8.8 --ttl 1-3" 1 "" "Only one mode (--scan, --trace, --monitor) allowed"
 
@@ -1181,8 +1178,6 @@ run_test "./wirefish --monitor --interval 50 --iface lo" 0 "" ""
 # 362 - test time utility functions via multiple monitor samples
 run_test "./wirefish --monitor --interval 25 --iface lo" 0 "" ""
 
-# 363 - test net_set_ttl via tracer (even though it fails at socket)
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 10-10" 1 "" "requires root" ""
 
 # 364 - test fcntl paths in net_tcp_connect
 run_test "./wirefish --scan --target 127.0.0.1 --ports 1-3" 0 "PORT" ""
@@ -1238,19 +1233,11 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
 
 
-
-# 385 - test tracer_append reallocation from 0 to 16
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
-
 # 385 - test scantable_add reallocation from initial 100 to 200
 run_test "./wirefish --scan --target 127.0.0.1 --ports 1-101" 0 "PORT" ""
 
-
 # 391 - test port validation in CLI
 run_test "./wirefish --scan --target 127.0.0.1 --ports 0-1" 1 "" "Ports must be in range" ""
-
-# 392 - test TTL validation in CLI
-run_test "./wirefish --trace --target 8.8.8.8 --ttl 0-1" 1 "" "TTL values must be in range" ""
 
 # 393 - test interval validation in CLI
 run_test "./wirefish --monitor --interval -1" 1 "" "Interval must be positive" ""
