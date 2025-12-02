@@ -35,11 +35,11 @@ jobs:
       run: ln -sf wirefish-test wirefish
 
     - name: Make test script executable
-      run: chmod +x ./tests/test_scanner.sh
+      run: chmod +x ./tests/test_script.sh
 
     - name: Run test script
       run: |
-        ./tests/test_scanner.sh > test_results.txt 2>&1 || true
+        ./tests/test_script.sh > test_results.txt 2>&1 || true
         echo "Test script completed"
 
     - name: Run gcov coverage reports
