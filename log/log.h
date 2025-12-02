@@ -11,10 +11,12 @@
 
 typedef enum { LOG_DEBUG=0, LOG_INFO, LOG_WARN, LOG_ERROR } LogLevel;
 
-void log_set_level(LogLevel lvl);
-void log_debug(const char *fmt, ...);
-void log_info (const char *fmt, ...);
-void log_warn (const char *fmt, ...);
-void log_error(const char *fmt, ...);
+void log_set_level(LogLevel chosenLevel);
+void log_debug(const char *message, ...);
+void log_info (const char *message, ...);
+void log_warn (const char *message, ...);
+void log_error(const char *message, ...);
+void log_help(void);
 
-#endif /* LOG_H */
+
+#endif 
