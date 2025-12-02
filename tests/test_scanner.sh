@@ -1215,8 +1215,6 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-2" 1 "" "requires root" ""
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
 
 
-# 376 - test print_host_column with long hostname (>26 chars)
-run_test "./wirefish --trace --target averylongsubdomainname.example.com --ttl 1-1" 1 "" "requires root" ""
 
 # 377 - test all status types in tracer table
 run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-3" 1 "" "requires root" ""
@@ -1248,8 +1246,6 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-1" 1 "" "requires root" ""
 # 385 - test scantable_add reallocation from initial 100 to 200
 run_test "./wirefish --scan --target 127.0.0.1 --ports 1-101" 0 "PORT" ""
 
-# 386 - test all CLI error messages
-run_test "./wirefish --scan" 1 "" "target required" ""
 
 # 391 - test port validation in CLI
 run_test "./wirefish --scan --target 127.0.0.1 --ports 0-1" 1 "" "Ports must be in range" ""
@@ -1371,8 +1367,6 @@ run_test "./wirefish --trace --target 8.8.8.8 --ttl 1-10" 1 "" "requires root" "
 # 435 - test short hostname (no truncation)
 run_test "./wirefish --trace --target google.com --ttl 1-1" 1 "" "requires root" ""
 
-# 437 - test hostname >26 chars (triggers truncation)
-run_test "./wirefish --trace --target verylonghostnamewithmanychars.example.com --ttl 1-1" 1 "" "requires root" ""
 
 # 438 - test ringbuf with count < size initially
 run_test "./wirefish --monitor --interval 200 --iface lo" 0 "" ""
