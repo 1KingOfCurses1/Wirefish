@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# File: tests/test_scanner.sh
+# File: tests/test_script.sh
 # Summary: Unit tests for the TCP port-scanning module.  
+# testing all files
 # Author: Youssef Khafagy
 #
 
@@ -20,7 +21,7 @@ run_test() {
     local STDOUT="$3"
     local STDERR="$4"
 
-    # Run command with 5-second timeout to prevent hanging
+    # Run command with 5 second timeout to prevent hanging
     timeout 5s $COMMAND >tmp_out 2>tmp_err
     local A_RETURN=$?
 
