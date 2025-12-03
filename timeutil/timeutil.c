@@ -1,7 +1,15 @@
 /*
  * File: timeutil.c
- * Implementation of millisecond-precision time utilities.
+ * Purpose: Millisecond-precision timing utilities for the project.
+ *
+ * Provides functions for obtaining current time in ms, sleeping with 
+ * ms precision, computing timestamp differences, and formatting timestamps.
+ *
+ * AUTHOR: Youssef Elshafei
+ * DATE: 2025-12-03
+ * VERSION: 1.0.0
  */
+
 #include "timeutil.h"
 #include <time.h>
 #include <sys/time.h>
@@ -9,8 +17,9 @@
 #include <stdio.h>
 
 /*
- * ms_now - Get current time in milliseconds since epoch
- * Returns: milliseconds timestamp, or -1 on error
+ * ms_now
+ * Returns current time in milliseconds since the Unix epoch.
+ * Returns: timestamp in ms, or -1 on failure.
  */
 long ms_now(void) {
     struct timeval tv;
@@ -21,10 +30,10 @@ long ms_now(void) {
 }
 
 /*
- * ms_sleep - Sleep for specified milliseconds
- * Args:
- *   ms: milliseconds to sleep
- * Returns: 0 on success, -1 on error
+ * ms_sleep
+ * Sleeps for the given number of milliseconds.
+ * ms: number of milliseconds to sleep
+ * Returns: 0 on success, -1 on error.
  */
 int ms_sleep(int ms) {
     if (ms < 0) {
@@ -44,21 +53,21 @@ int ms_sleep(int ms) {
 }
 
 /*
- * ms_diff - Calculate difference between two millisecond timestamps
- * Args:
- *   start_ms: start timestamp
- *   end_ms: end timestamp
- * Returns: difference in milliseconds (end - start)
+ * ms_diff
+ * Computes the difference between two millisecond timestamps.
+ * start_ms: starting timestamp
+ * end_ms: ending timestamp
+ * Returns: end_ms - start_ms
  */
 long ms_diff(long start_ms, long end_ms) {
     return end_ms - start_ms;
 }
 
 /*
- * format_timestamp - Format current time as HH:MM:SS.mmm
- * Args:
- *   buf: output buffer
- *   len: buffer length
+ * format_timestamp
+ * Formats the current local time as HH:MM:SS.mmm.
+ * buf: output buffer
+ * len: size of buffer
  */
 void format_timestamp(char *buf, size_t len) {
     struct timeval tv;
@@ -67,9 +76,5 @@ void format_timestamp(char *buf, size_t len) {
     gettimeofday(&tv, NULL);
     tm_info = localtime(&tv.tv_sec);
     
-    snprintf(buf, len, "%02d:%02d:%02d.%03ld",
-             tm_info->tm_hour,
-             tm_info->tm_min,
-             tm_info->tm_sec,
-             tv.tv_usec / 1000);
+    snprintf(buf, len, "%02d:%02d:%02d.%03ld", tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec, tv.tv_usec / 1000);
 }
