@@ -51,4 +51,4 @@ typedef struct{
 int cli_parse(int argc, char *argv[], CommandLine *out);
 void cli_print_help(void);
 
-#endif /* CLI_H */
+#endif 
