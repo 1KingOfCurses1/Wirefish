@@ -48,4 +48,4 @@
 int scanner_run(const CommandLine *cfg, ScanTable *out);
 void scantable_free(ScanTable *t);
 
-#endif /* SCANNER_H */
+#endif 
