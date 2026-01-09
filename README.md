@@ -113,7 +113,7 @@ make
 ## Authors
 Shan Truong,
 Aryan Verma,
-Youssef E,
-Youssef K,
+Youssef Elshafei,
+Youssef Khafagy,
 
 McMaster University, 2025
